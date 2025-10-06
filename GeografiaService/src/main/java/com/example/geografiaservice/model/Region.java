@@ -2,6 +2,8 @@ package com.example.geografiaservice.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,8 +36,10 @@ public class Region {
     private Integer orden;
 
     @OneToMany(mappedBy = "region", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("region")
     private List<Ciudad> ciudades;
 
     @OneToMany(mappedBy = "region", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("region")
     private List<Comuna> comunas;
 }

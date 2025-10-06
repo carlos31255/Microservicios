@@ -2,6 +2,8 @@ package com.example.geografiaservice.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,13 +31,12 @@ public class Ciudad {
     @Column(nullable = false, length = 100)
     private String nombre;
 
-    @Column(name = "es_capital")
-    private Boolean esCapital = false;
-
     @ManyToOne
     @JoinColumn(name = "region_id", nullable = false)
+    @JsonIgnoreProperties("ciudades")
     private Region region;
 
     @OneToMany(mappedBy = "ciudad", cascade =  CascadeType.ALL)
+    @JsonIgnoreProperties({"ciudad", "region"})
     private List<Comuna> comuna;
 }

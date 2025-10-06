@@ -1,5 +1,6 @@
 package com.example.geografiaservice.service;
 
+import com.example.geografiaservice.dto.ComunaDTO;
 import com.example.geografiaservice.model.Comuna;
 import com.example.geografiaservice.repository.CiudadRepository;
 import com.example.geografiaservice.repository.ComunaRepository;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -25,34 +27,50 @@ public class ComunaService {
     }
 
     //Obtener todas las comunas
-    public List<Comuna> obtenerTodasLasComunas() {
-        return comunaRepository.findAll();
+    public List<ComunaDTO> obtenerTodasLasComunas() {
+        return comunaRepository.findAll()
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
     }
 
     //Obtener comuna por ID
-    public Comuna obtenerComunaPorId(Long id) {
-        return comunaRepository.findById(id)
+    public ComunaDTO obtenerComunaPorId(Long id) {
+        Comuna comuna = comunaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Comuna no encontrada con id: " + id));
+        return convertirADTO(comuna);
     }
 
     //Obtener comunas por región
-    public List<Comuna> obtenerComunasPorRegion(Long regionId) {
-        return comunaRepository.findByRegionIdOrderByNombreAsc(regionId);
+    public List<ComunaDTO> obtenerComunasPorRegion(Long regionId) {
+        return comunaRepository.findByRegionIdOrderByNombreAsc(regionId)
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
     }
 
     //Obtener comunas por ciudad
-    public List<Comuna> obtenerComunasPorCiudad(Long ciudadId) {
-        return comunaRepository.findByCiudadIdOrderByNombreAsc(ciudadId);
+    public List<ComunaDTO> obtenerComunasPorCiudad(Long ciudadId) {
+        return comunaRepository.findByCiudadIdOrderByNombreAsc(ciudadId)
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
     }
 
     //Obtener comunas por región y ciudad
-    public List<Comuna> obtenerComunasPorRegionYCiudad(Long regionId, Long ciudadId) {
-        return comunaRepository.findByRegionIdAndCiudadId(regionId, ciudadId);
+    public List<ComunaDTO> obtenerComunasPorRegionYCiudad(Long regionId, Long ciudadId) {
+        return comunaRepository.findByRegionIdAndCiudadId(regionId, ciudadId)
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
     }
 
     //Buscar comunas por nombre parcial
-    public List<Comuna> buscarComunasPorNombre(String nombre) {
-        return comunaRepository.findByNombreContainingIgnoreCase(nombre);
+    public List<ComunaDTO> buscarComunasPorNombre(String nombre) {
+        return comunaRepository.findByNombreContainingIgnoreCase(nombre)
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
     }
 
     //Crear nueva comuna
@@ -103,5 +121,15 @@ public class ComunaService {
             throw new RuntimeException("Comuna no encontrada con id: " + id);
         }
         comunaRepository.deleteById(id);
+    }
+
+    //Convertir entidad a DTO
+    private ComunaDTO convertirADTO(Comuna comuna) {
+        return new ComunaDTO(
+                comuna.getId(),
+                comuna.getNombre(),
+                comuna.getRegion().getId(),
+                comuna.getCiudad().getId()
+        );
     }
 }

@@ -1,5 +1,6 @@
 package com.example.geografiaservice.service;
 
+import com.example.geografiaservice.dto.CiudadDTO;
 import com.example.geografiaservice.model.Ciudad;
 import com.example.geografiaservice.repository.CiudadRepository;
 import com.example.geografiaservice.repository.RegionRepository;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -21,19 +23,26 @@ public class CiudadService {
     }
 
     //Obtener todas las ciudades
-    public List<Ciudad> obtenerTodasLasCiudades() {
-        return ciudadRepository.findAll();
+    public List<CiudadDTO> obtenerTodasLasCiudades() {
+        return ciudadRepository.findAll()
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
     }
 
     //Obtener ciudad por ID
-    public Ciudad obtenerCiudadPorId(Long id) {
-        return ciudadRepository.findById(id)
+    public CiudadDTO obtenerCiudadPorId(Long id) {
+        Ciudad ciudad = ciudadRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ciudad no encontrada con id: " + id));
+        return convertirADTO(ciudad);
     }
 
     //Obtener ciudades por región
-    public List<Ciudad> obtenerCiudadesPorRegion(Long regionId) {
-        return ciudadRepository.findByRegionIdOrderByNombreAsc(regionId);
+    public List<CiudadDTO> obtenerCiudadesPorRegion(Long regionId) {
+        return ciudadRepository.findByRegionIdOrderByNombreAsc(regionId)
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
     }
 
     //Crear nueva ciudad
@@ -62,7 +71,6 @@ public class CiudadService {
         }
 
         ciudadExistente.setNombre(ciudadActualizada.getNombre());
-        ciudadExistente.setEsCapital(ciudadActualizada.getEsCapital());
         ciudadExistente.setRegion(ciudadActualizada.getRegion());
 
         return ciudadRepository.save(ciudadExistente);
@@ -74,5 +82,14 @@ public class CiudadService {
             throw new RuntimeException("Ciudad no encontrada con id: " + id);
         }
         ciudadRepository.deleteById(id);
+    }
+
+    //Convertir entidad a DTO
+    private CiudadDTO convertirADTO(Ciudad ciudad) {
+        return new CiudadDTO(
+                ciudad.getId(),
+                ciudad.getNombre(),
+                ciudad.getRegion().getId()
+        );
     }
 }

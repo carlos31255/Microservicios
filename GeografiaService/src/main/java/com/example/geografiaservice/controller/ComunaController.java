@@ -1,5 +1,6 @@
 package com.example.geografiaservice.controller;
 
+import com.example.geografiaservice.dto.ComunaDTO;
 import com.example.geografiaservice.model.Comuna;
 import com.example.geografiaservice.service.ComunaService;
 import org.springframework.http.HttpStatus;
@@ -21,9 +22,9 @@ public class ComunaController {
 
     //Obtener todas las comunas
     @GetMapping
-    public ResponseEntity<List<Comuna>> obtenerTodasLasComunas() {
+    public ResponseEntity<List<ComunaDTO>> obtenerTodasLasComunas() {
         try {
-            List<Comuna> comunas = comunaService.obtenerTodasLasComunas();
+            List<ComunaDTO> comunas = comunaService.obtenerTodasLasComunas();
             return ResponseEntity.ok(comunas);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -32,9 +33,9 @@ public class ComunaController {
 
     //Obtener comuna por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Comuna> obtenerComunaPorId(@PathVariable Long id) {
+    public ResponseEntity<ComunaDTO> obtenerComunaPorId(@PathVariable Long id) {
         try {
-            Comuna comuna = comunaService.obtenerComunaPorId(id);
+            ComunaDTO comuna = comunaService.obtenerComunaPorId(id);
             return ResponseEntity.ok(comuna);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -45,9 +46,9 @@ public class ComunaController {
 
     //Obtener comunas por región
     @GetMapping("/region/{regionId}")
-    public ResponseEntity<List<Comuna>> obtenerComunasPorRegion(@PathVariable Long regionId) {
+    public ResponseEntity<List<ComunaDTO>> obtenerComunasPorRegion(@PathVariable Long regionId) {
         try {
-            List<Comuna> comunas = comunaService.obtenerComunasPorRegion(regionId);
+            List<ComunaDTO> comunas = comunaService.obtenerComunasPorRegion(regionId);
             return ResponseEntity.ok(comunas);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -56,9 +57,9 @@ public class ComunaController {
 
     //Obtener comunas por ciudad
     @GetMapping("/ciudad/{ciudadId}")
-    public ResponseEntity<List<Comuna>> obtenerComunasPorCiudad(@PathVariable Long ciudadId) {
+    public ResponseEntity<List<ComunaDTO>> obtenerComunasPorCiudad(@PathVariable Long ciudadId) {
         try {
-            List<Comuna> comunas = comunaService.obtenerComunasPorCiudad(ciudadId);
+            List<ComunaDTO> comunas = comunaService.obtenerComunasPorCiudad(ciudadId);
             return ResponseEntity.ok(comunas);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -67,11 +68,11 @@ public class ComunaController {
 
     //Obtener comunas por región y ciudad
     @GetMapping("/region/{regionId}/ciudad/{ciudadId}")
-    public ResponseEntity<List<Comuna>> obtenerComunasPorRegionYCiudad(
+    public ResponseEntity<List<ComunaDTO>> obtenerComunasPorRegionYCiudad(
             @PathVariable Long regionId, 
             @PathVariable Long ciudadId) {
         try {
-            List<Comuna> comunas = comunaService.obtenerComunasPorRegionYCiudad(regionId, ciudadId);
+            List<ComunaDTO> comunas = comunaService.obtenerComunasPorRegionYCiudad(regionId, ciudadId);
             return ResponseEntity.ok(comunas);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -80,9 +81,9 @@ public class ComunaController {
 
     //Buscar comunas por nombre
     @GetMapping("/buscar")
-    public ResponseEntity<List<Comuna>> buscarComunasPorNombre(@RequestParam String nombre) {
+    public ResponseEntity<List<ComunaDTO>> buscarComunasPorNombre(@RequestParam String nombre) {
         try {
-            List<Comuna> comunas = comunaService.buscarComunasPorNombre(nombre);
+            List<ComunaDTO> comunas = comunaService.buscarComunasPorNombre(nombre);
             return ResponseEntity.ok(comunas);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

@@ -1,5 +1,7 @@
 package com.example.geografiaservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,9 +30,11 @@ public class Comuna {
 
     @ManyToOne
     @JoinColumn(name = "region_id", nullable = false)
+    @JsonIgnoreProperties({"ciudades", "comunas"})
     private Region region;
 
     @ManyToOne
     @JoinColumn(name = "ciudad_id", nullable = false)
+    @JsonIgnoreProperties({"region", "comuna"})
     private Ciudad ciudad;
 }

@@ -1,5 +1,6 @@
 package com.example.geografiaservice.controller;
 
+import com.example.geografiaservice.dto.CiudadDTO;
 import com.example.geografiaservice.model.Ciudad;
 import com.example.geografiaservice.service.CiudadService;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,9 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/geografia/ciudades")
+// para permitir solicitudes desde cualquier origen
+// * se usa en desarrollo, en producción se debe restringir a dominios específicos
+@CrossOrigin(origins = "*") 
 public class CiudadController {
 
     private final CiudadService ciudadService;
@@ -20,9 +24,9 @@ public class CiudadController {
 
     //Obtener todas las ciudades
     @GetMapping
-    public ResponseEntity<List<Ciudad>> obtenerTodasLasCiudades() {
+    public ResponseEntity<List<CiudadDTO>> obtenerTodasLasCiudades() {
         try {
-            List<Ciudad> ciudades = ciudadService.obtenerTodasLasCiudades();
+            List<CiudadDTO> ciudades = ciudadService.obtenerTodasLasCiudades();
             return ResponseEntity.ok(ciudades);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -31,9 +35,9 @@ public class CiudadController {
 
     //Obtener ciudad por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Ciudad> obtenerCiudadPorId(@PathVariable Long id) {
+    public ResponseEntity<CiudadDTO> obtenerCiudadPorId(@PathVariable Long id) {
         try {
-            Ciudad ciudad = ciudadService.obtenerCiudadPorId(id);
+            CiudadDTO ciudad = ciudadService.obtenerCiudadPorId(id);
             return ResponseEntity.ok(ciudad);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -44,9 +48,9 @@ public class CiudadController {
 
     //Obtener ciudades por región
     @GetMapping("/region/{regionId}")
-    public ResponseEntity<List<Ciudad>> obtenerCiudadesPorRegion(@PathVariable Long regionId) {
+    public ResponseEntity<List<CiudadDTO>> obtenerCiudadesPorRegion(@PathVariable Long regionId) {
         try {
-            List<Ciudad> ciudades = ciudadService.obtenerCiudadesPorRegion(regionId);
+            List<CiudadDTO> ciudades = ciudadService.obtenerCiudadesPorRegion(regionId);
             return ResponseEntity.ok(ciudades);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

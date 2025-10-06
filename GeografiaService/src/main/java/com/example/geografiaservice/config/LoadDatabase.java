@@ -47,82 +47,82 @@ public class LoadDatabase {
                 // ==================== CARGAR CIUDADES ====================
                 
                 // XV - Arica y Parinacota
-                Ciudad arica = new Ciudad(null, "Arica", true, aricaParinacota, null);
-                Ciudad putre = new Ciudad(null, "Putre", false, aricaParinacota, null);
+                Ciudad arica = new Ciudad(null, "Arica", aricaParinacota, null);
+                Ciudad putre = new Ciudad(null, "Putre", aricaParinacota, null);
 
                 // I - Tarapacá
-                Ciudad iquique = new Ciudad(null, "Iquique", true, tarapaca, null);
-                Ciudad altoHospicio = new Ciudad(null, "Alto Hospicio", false, tarapaca, null);
+                Ciudad iquique = new Ciudad(null, "Iquique", tarapaca, null);
+                Ciudad altoHospicio = new Ciudad(null, "Alto Hospicio", tarapaca, null);
 
                 // II - Antofagasta
-                Ciudad antofagastaCiudad = new Ciudad(null, "Antofagasta", true, antofagasta, null);
-                Ciudad calama = new Ciudad(null, "Calama", false, antofagasta, null);
-                Ciudad tocopilla = new Ciudad(null, "Tocopilla", false, antofagasta, null);
+                Ciudad antofagastaCiudad = new Ciudad(null, "Antofagasta", antofagasta, null);
+                Ciudad calama = new Ciudad(null, "Calama", antofagasta, null);
+                Ciudad tocopilla = new Ciudad(null, "Tocopilla", antofagasta, null);
 
                 // III - Atacama
-                Ciudad copiapo = new Ciudad(null, "Copiapó", true, atacama, null);
-                Ciudad caldera = new Ciudad(null, "Caldera", false, atacama, null);
-                Ciudad vallenar = new Ciudad(null, "Vallenar", false, atacama, null);
+                Ciudad copiapo = new Ciudad(null, "Copiapó", atacama, null);
+                Ciudad caldera = new Ciudad(null, "Caldera", atacama, null);
+                Ciudad vallenar = new Ciudad(null, "Vallenar", atacama, null);
 
                 // IV - Coquimbo
-                Ciudad laSerena = new Ciudad(null, "La Serena", true, coquimbo, null);
-                Ciudad coquimboCiudad = new Ciudad(null, "Coquimbo", false, coquimbo, null);
-                Ciudad ovalle = new Ciudad(null, "Ovalle", false, coquimbo, null);
+                Ciudad laSerena = new Ciudad(null, "La Serena", coquimbo, null);
+                Ciudad coquimboCiudad = new Ciudad(null, "Coquimbo", coquimbo, null);
+                Ciudad ovalle = new Ciudad(null, "Ovalle", coquimbo, null);
 
                 // V - Valparaíso
-                Ciudad valparaisoCiudad = new Ciudad(null, "Valparaíso", true, valparaiso, null);
-                Ciudad vinadelMar = new Ciudad(null, "Viña del Mar", false, valparaiso, null);
-                Ciudad quilpue = new Ciudad(null, "Quilpué", false, valparaiso, null);
-                Ciudad sanAntonio = new Ciudad(null, "San Antonio", false, valparaiso, null);
-                Ciudad quillota = new Ciudad(null, "Quillota", false, valparaiso, null);
+                Ciudad valparaisoCiudad = new Ciudad(null, "Valparaíso", valparaiso, null);
+                Ciudad vinadelMar = new Ciudad(null, "Viña del Mar", valparaiso, null);
+                Ciudad quilpue = new Ciudad(null, "Quilpué", valparaiso, null);
+                Ciudad sanAntonio = new Ciudad(null, "San Antonio", valparaiso, null);
+                Ciudad quillota = new Ciudad(null, "Quillota", valparaiso, null);
 
                 // RM - Metropolitana
-                Ciudad santiago = new Ciudad(null, "Santiago", true, metropolitana, null);
-                Ciudad maipu = new Ciudad(null, "Maipú", false, metropolitana, null);
-                Ciudad puenteAlto = new Ciudad(null, "Puente Alto", false, metropolitana, null);
-                Ciudad laFlorida = new Ciudad(null, "La Florida", false, metropolitana, null);
-                Ciudad sanBernardo = new Ciudad(null, "San Bernardo", false, metropolitana, null);
+                Ciudad santiago = new Ciudad(null, "Santiago", metropolitana, null);
+                Ciudad maipu = new Ciudad(null, "Maipú", metropolitana, null);
+                Ciudad puenteAlto = new Ciudad(null, "Puente Alto", metropolitana, null);
+                Ciudad laFlorida = new Ciudad(null, "La Florida", metropolitana, null);
+                Ciudad sanBernardo = new Ciudad(null, "San Bernardo", metropolitana, null);
 
                 // VI - O'Higgins
-                Ciudad rancagua = new Ciudad(null, "Rancagua", true, ohiggins, null);
-                Ciudad sanFernando = new Ciudad(null, "San Fernando", false, ohiggins, null);
-                Ciudad santaCruz = new Ciudad(null, "Santa Cruz", false, ohiggins, null);
+                Ciudad rancagua = new Ciudad(null, "Rancagua", ohiggins, null);
+                Ciudad sanFernando = new Ciudad(null, "San Fernando", ohiggins, null);
+                Ciudad santaCruz = new Ciudad(null, "Santa Cruz", ohiggins, null);
 
                 // VII - Maule
-                Ciudad talca = new Ciudad(null, "Talca", true, maule, null);
-                Ciudad curico = new Ciudad(null, "Curicó", false, maule, null);
-                Ciudad linares = new Ciudad(null, "Linares", false, maule, null);
+                Ciudad talca = new Ciudad(null, "Talca", maule, null);
+                Ciudad curico = new Ciudad(null, "Curicó", maule, null);
+                Ciudad linares = new Ciudad(null, "Linares", maule, null);
 
                 // XVI - Ñuble
-                Ciudad chillan = new Ciudad(null, "Chillán", true, nuble, null);
-                Ciudad sanCarlos = new Ciudad(null, "San Carlos", false, nuble, null);
+                Ciudad chillan = new Ciudad(null, "Chillán", nuble, null);
+                Ciudad sanCarlos = new Ciudad(null, "San Carlos", nuble, null);
 
                 // VIII - Biobío
-                Ciudad concepcion = new Ciudad(null, "Concepción", true, biobio, null);
-                Ciudad talcahuano = new Ciudad(null, "Talcahuano", false, biobio, null);
-                Ciudad losAngeles = new Ciudad(null, "Los Ángeles", false, biobio, null);
+                Ciudad concepcion = new Ciudad(null, "Concepción", biobio, null);
+                Ciudad talcahuano = new Ciudad(null, "Talcahuano", biobio, null);
+                Ciudad losAngeles = new Ciudad(null, "Los Ángeles", biobio, null);
 
                 // IX - Araucanía
-                Ciudad temuco = new Ciudad(null, "Temuco", true, araucania, null);
-                Ciudad villarrica = new Ciudad(null, "Villarrica", false, araucania, null);
-                Ciudad pucon = new Ciudad(null, "Pucón", false, araucania, null);
+                Ciudad temuco = new Ciudad(null, "Temuco", araucania, null);
+                Ciudad villarrica = new Ciudad(null, "Villarrica", araucania, null);
+                Ciudad pucon = new Ciudad(null, "Pucón", araucania, null);
 
                 // XIV - Los Ríos
-                Ciudad valdivia = new Ciudad(null, "Valdivia", true, rios, null);
-                Ciudad riobueno = new Ciudad(null, "Río Bueno", false, rios, null);
+                Ciudad valdivia = new Ciudad(null, "Valdivia", rios, null);
+                Ciudad riobueno = new Ciudad(null, "Río Bueno", rios, null);
 
                 // X - Los Lagos
-                Ciudad puertoMontt = new Ciudad(null, "Puerto Montt", true, lagos, null);
-                Ciudad osorno = new Ciudad(null, "Osorno", false, lagos, null);
-                Ciudad castro = new Ciudad(null, "Castro", false, lagos, null);
+                Ciudad puertoMontt = new Ciudad(null, "Puerto Montt", lagos, null);
+                Ciudad osorno = new Ciudad(null, "Osorno", lagos, null);
+                Ciudad castro = new Ciudad(null, "Castro", lagos, null);
 
                 // XI - Aysén
-                Ciudad coyhaique = new Ciudad(null, "Coyhaique", true, aysen, null);
-                Ciudad puertoAysen = new Ciudad(null, "Puerto Aysén", false, aysen, null);
+                Ciudad coyhaique = new Ciudad(null, "Coyhaique", aysen, null);
+                Ciudad puertoAysen = new Ciudad(null, "Puerto Aysén", aysen, null);
 
                 // XII - Magallanes
-                Ciudad puntaArenas = new Ciudad(null, "Punta Arenas", true, magallanes, null);
-                Ciudad puertoNatales = new Ciudad(null, "Puerto Natales", false, magallanes, null);
+                Ciudad puntaArenas = new Ciudad(null, "Punta Arenas", magallanes, null);
+                Ciudad puertoNatales = new Ciudad(null, "Puerto Natales", magallanes, null);
 
                 ciudadRepo.saveAll(List.of(
                     arica, putre, iquique, altoHospicio, antofagastaCiudad, calama, tocopilla,

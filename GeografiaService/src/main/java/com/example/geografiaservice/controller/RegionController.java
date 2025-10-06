@@ -1,5 +1,6 @@
 package com.example.geografiaservice.controller;
 
+import com.example.geografiaservice.dto.RegionDTO;
 import com.example.geografiaservice.model.Region;
 import com.example.geografiaservice.service.RegionService;
 import org.springframework.http.HttpStatus;
@@ -21,9 +22,9 @@ public class RegionController {
 
     //Obtener todas las regiones
     @GetMapping
-    public ResponseEntity<List<Region>> obtenerTodasLasRegiones() {
+    public ResponseEntity<List<RegionDTO>> obtenerTodasLasRegiones() {
         try {
-            List<Region> regiones = regionService.obtenerTodasLasRegiones();
+            List<RegionDTO> regiones = regionService.obtenerTodasLasRegiones();
             return ResponseEntity.ok(regiones);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -32,9 +33,9 @@ public class RegionController {
 
     //Obtener región por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Region> obtenerRegionPorId(@PathVariable Long id) {
+    public ResponseEntity<RegionDTO> obtenerRegionPorId(@PathVariable Long id) {
         try {
-            Region region = regionService.obtenerRegionPorId(id);
+            RegionDTO region = regionService.obtenerRegionPorId(id);
             return ResponseEntity.ok(region);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -45,9 +46,9 @@ public class RegionController {
 
     //Obtener región por código
     @GetMapping("/codigo/{codigo}")
-    public ResponseEntity<Region> obtenerRegionPorCodigo(@PathVariable String codigo) {
+    public ResponseEntity<RegionDTO> obtenerRegionPorCodigo(@PathVariable String codigo) {
         try {
-            Region region = regionService.obtenerRegionPorCodigo(codigo);
+            RegionDTO region = regionService.obtenerRegionPorCodigo(codigo);
             return ResponseEntity.ok(region);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
