@@ -19,6 +19,16 @@
             "projectName": "Zapateria",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-UsuarioServiceApplication<UsuarioService>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.example.UsuarioService.UsuarioServiceApplication",
+            "projectName": "UsuarioService",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }
