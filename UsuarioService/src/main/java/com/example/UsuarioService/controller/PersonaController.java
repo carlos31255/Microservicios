@@ -97,7 +97,7 @@ public class PersonaController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Eliminar persona", description = "Elimina una persona del sistema")
+    @Operation(summary = "Desactivar persona", description = "Desactiva una persona (borrado lógico - cambia estado a inactivo)")
     public ResponseEntity<Void> eliminarPersona(@PathVariable Long id) {
         boolean eliminado = personaService.eliminarPersona(id);
         if (eliminado) {

@@ -72,7 +72,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{idPersona}")
-    @Operation(summary = "Eliminar usuario", description = "Elimina la asignación de rol de un usuario (no elimina la persona)")
+    @Operation(summary = "Desactivar usuario", description = "Desactiva un usuario (borrado lógico - marca como inactivo)")
     public ResponseEntity<Void> eliminarUsuario(@PathVariable Long idPersona) {
         boolean eliminado = usuarioService.eliminarUsuario(idPersona);
         if (eliminado) {

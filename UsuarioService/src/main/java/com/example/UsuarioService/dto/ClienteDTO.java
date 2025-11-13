@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class ClienteDTO {
     private Long idPersona;
     private String categoria;
+    private Boolean activo;
     private String nombreCompleto;
     private String email;
     private String telefono;

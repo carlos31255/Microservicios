@@ -84,12 +84,14 @@ public class ClienteService {
         return convertirADTO(clienteActualizado, persona);
     }
 
-    // Eliminar cliente
+    // Eliminar cliente (borrado lógico)
     public boolean eliminarCliente(Long idPersona) {
-        if (!clienteRepository.existsById(idPersona)) {
+        Cliente cliente = clienteRepository.findById(idPersona).orElse(null);
+        if (cliente == null) {
             return false;
         }
-        clienteRepository.deleteById(idPersona);
+        cliente.setActivo(false);
+        clienteRepository.save(cliente);
         return true;
     }
 
@@ -105,6 +107,7 @@ public class ClienteService {
         return new ClienteDTO(
                 cliente.getIdPersona(),
                 cliente.getCategoria(),
+                cliente.getActivo(),
                 nombreCompleto,
                 email,
                 telefono
@@ -121,6 +124,7 @@ public class ClienteService {
         return new ClienteDTO(
                 cliente.getIdPersona(),
                 cliente.getCategoria(),
+                cliente.getActivo(),
                 nombreCompleto,
                 email,
                 telefono

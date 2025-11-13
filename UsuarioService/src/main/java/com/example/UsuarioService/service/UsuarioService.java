@@ -104,12 +104,14 @@ public class UsuarioService {
         return convertirADTO(usuarioActualizado, persona, rol);
     }
 
-    // Eliminar usuario
+    // Eliminar usuario (borrado lógico)
     public boolean eliminarUsuario(Long idPersona) {
-        if (!usuarioRepository.existsById(idPersona)) {
+        Usuario usuario = usuarioRepository.findById(idPersona).orElse(null);
+        if (usuario == null) {
             return false;
         }
-        usuarioRepository.deleteById(idPersona);
+        usuario.setActivo(false);
+        usuarioRepository.save(usuario);
         return true;
     }
 
@@ -126,6 +128,7 @@ public class UsuarioService {
         return new UsuarioDTO(
                 usuario.getIdPersona(),
                 usuario.getIdRol(),
+                usuario.getActivo(),
                 nombreCompleto,
                 username,
                 nombreRol
@@ -142,6 +145,7 @@ public class UsuarioService {
         return new UsuarioDTO(
                 usuario.getIdPersona(),
                 usuario.getIdRol(),
+                usuario.getActivo(),
                 nombreCompleto,
                 username,
                 nombreRol

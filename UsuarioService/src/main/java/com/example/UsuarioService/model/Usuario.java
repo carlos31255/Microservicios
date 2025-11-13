@@ -25,6 +25,9 @@ public class Usuario {
     @Column(name = "id_rol", nullable = false)
     private Long idRol;
 
+    @Column(nullable = false)
+    private Boolean activo = true; // Para borrado lógico
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_persona", insertable = false, updatable = false)
     private Persona persona;
@@ -37,5 +40,6 @@ public class Usuario {
     public Usuario(Long idPersona, Long idRol) {
         this.idPersona = idPersona;
         this.idRol = idRol;
+        this.activo = true;
     }
 }

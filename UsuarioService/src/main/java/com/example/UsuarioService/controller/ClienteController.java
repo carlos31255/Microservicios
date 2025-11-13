@@ -11,10 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controlador REST para gestión de Clientes.
- * Endpoints para CRUD y operaciones específicas de clientes.
- */
+
 @RestController
 @RequestMapping("/api/clientes")
 @CrossOrigin(origins = "*")
@@ -72,7 +69,7 @@ public class ClienteController {
     }
 
     @DeleteMapping("/{idPersona}")
-    @Operation(summary = "Eliminar cliente", description = "Elimina la información de cliente (no elimina la persona)")
+    @Operation(summary = "Desactivar cliente", description = "Desactiva un cliente (borrado lógico - marca como inactivo)")
     public ResponseEntity<Void> eliminarCliente(@PathVariable Long idPersona) {
         boolean eliminado = clienteService.eliminarCliente(idPersona);
         if (eliminado) {

@@ -115,12 +115,14 @@ public class PersonaService {
         return convertirADTO(personaActualizada);
     }
 
-    // Eliminar persona
+    // Eliminar persona (borrado lógico)
     public boolean eliminarPersona(Long id) {
-        if (!personaRepository.existsById(id)) {
+        Persona persona = personaRepository.findById(id).orElse(null);
+        if (persona == null) {
             return false;
         }
-        personaRepository.deleteById(id);
+        persona.setEstado("inactivo");
+        personaRepository.save(persona);
         return true;
     }
 

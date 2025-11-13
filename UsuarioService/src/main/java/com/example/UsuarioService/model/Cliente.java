@@ -24,6 +24,9 @@ public class Cliente {
     @Column(length = 20)
     private String categoria; // VIP, regular, premium
 
+    @Column(nullable = false)
+    private Boolean activo = true; // Para borrado lógico
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_persona", insertable = false, updatable = false)
     private Persona persona;
@@ -32,5 +35,6 @@ public class Cliente {
     public Cliente(Long idPersona, String categoria) {
         this.idPersona = idPersona;
         this.categoria = categoria;
+        this.activo = true;
     }
 }
