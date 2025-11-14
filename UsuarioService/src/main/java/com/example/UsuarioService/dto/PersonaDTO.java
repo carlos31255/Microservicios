@@ -18,6 +18,7 @@ public class PersonaDTO {
     private String calle;
     private String numeroPuerta;
     private String username;
+    private String password; // Solo se usa al crear, nunca se devuelve en consultas
     private Long fechaRegistro;
     private String estado;
 }

@@ -3,6 +3,7 @@ package com.example.UsuarioService.service;
 import com.example.UsuarioService.dto.PersonaDTO;
 import com.example.UsuarioService.model.Persona;
 import com.example.UsuarioService.repository.PersonaRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +15,11 @@ import java.util.stream.Collectors;
 public class PersonaService {
 
     private final PersonaRepository personaRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public PersonaService(PersonaRepository personaRepository) {
+    public PersonaService(PersonaRepository personaRepository, BCryptPasswordEncoder passwordEncoder) {
         this.personaRepository = personaRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // Obtener todas las personas
@@ -85,9 +88,12 @@ public class PersonaService {
         persona.setCalle(personaDTO.getCalle());
         persona.setNumeroPuerta(personaDTO.getNumeroPuerta());
         persona.setUsername(personaDTO.getUsername());
-        // Nota: La contraseña debe establecerse por separado (no viene en DTO por seguridad)
-        // Se debe usar un endpoint separado para establecer/cambiar contraseña
-        persona.setPassHash(""); // Contraseña vacía por defecto, debe establecerse después
+        // Hashear la contraseña con BCrypt
+        if (personaDTO.getPassword() != null && !personaDTO.getPassword().isEmpty()) {
+            persona.setPassHash(passwordEncoder.encode(personaDTO.getPassword()));
+        } else {
+            throw new IllegalArgumentException("La contraseña es requerida");
+        }
         persona.setFechaRegistro(System.currentTimeMillis());
         persona.setEstado("activo");
         
@@ -127,12 +133,39 @@ public class PersonaService {
     }
 
     // Verificar credenciales (para login)
-    public PersonaDTO verificarCredenciales(String username, String passwordHash) {
+    public PersonaDTO verificarCredenciales(String username, String password) {
         Persona persona = personaRepository.findByUsername(username).orElse(null);
-        if (persona != null && persona.getPassHash().equals(passwordHash)) {
+        if (persona != null && passwordEncoder.matches(password, persona.getPassHash())) {
             return convertirADTO(persona);
         }
         return null;
+    }
+
+    // Cambiar contraseña
+    public boolean cambiarContrasena(Long id, String passwordActual, String passwordNueva) {
+        Persona persona = personaRepository.findById(id).orElse(null);
+        if (persona == null) {
+            return false;
+        }
+        // Verificar contraseña actual
+        if (!passwordEncoder.matches(passwordActual, persona.getPassHash())) {
+            throw new IllegalArgumentException("Contraseña actual incorrecta");
+        }
+        // Establecer nueva contraseña hasheada
+        persona.setPassHash(passwordEncoder.encode(passwordNueva));
+        personaRepository.save(persona);
+        return true;
+    }
+
+    // Establecer contraseña (para administradores o reseteo)
+    public boolean establecerContrasena(Long id, String passwordNueva) {
+        Persona persona = personaRepository.findById(id).orElse(null);
+        if (persona == null) {
+            return false;
+        }
+        persona.setPassHash(passwordEncoder.encode(passwordNueva));
+        personaRepository.save(persona);
+        return true;
     }
 
     // Convertir Persona a PersonaDTO
@@ -148,6 +181,7 @@ public class PersonaService {
                 persona.getCalle(),
                 persona.getNumeroPuerta(),
                 persona.getUsername(),
+                null, // password - nunca se devuelve en consultas
                 persona.getFechaRegistro(),
                 persona.getEstado()
         );

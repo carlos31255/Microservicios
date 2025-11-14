@@ -117,4 +117,33 @@ public class PersonaController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+
+    @PutMapping("/{id}/cambiar-contrasena")
+    @Operation(summary = "Cambiar contraseña", description = "Cambia la contraseña de una persona (requiere contraseña actual)")
+    public ResponseEntity<Void> cambiarContrasena(
+            @PathVariable Long id,
+            @RequestParam String passwordActual,
+            @RequestParam String passwordNueva) {
+        try {
+            boolean cambiado = personaService.cambiarContrasena(id, passwordActual, passwordNueva);
+            if (cambiado) {
+                return ResponseEntity.ok().build();
+            }
+            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+    }
+
+    @PutMapping("/{id}/establecer-contrasena")
+    @Operation(summary = "Establecer contraseña", description = "Establece una nueva contraseña (solo administradores)")
+    public ResponseEntity<Void> establecerContrasena(
+            @PathVariable Long id,
+            @RequestParam String passwordNueva) {
+        boolean establecido = personaService.establecerContrasena(id, passwordNueva);
+        if (establecido) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
 }
