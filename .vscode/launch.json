@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "VentasServiceApplication",
+            "request": "launch",
+            "mainClass": "com.example.ventasservice.VentasServiceApplication",
+            "projectName": "VentasService"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-InventarioserviceApplication<inventarioservice>",
             "request": "launch",
             "cwd": "${workspaceFolder}",

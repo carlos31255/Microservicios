@@ -15,19 +15,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-/**
- * Configuración para precargar datos iniciales en la base de datos.
- * Similar al patrón de precarga de Android Room Database.
- * Se ejecuta automáticamente al iniciar la aplicación.
- */
+
 @Configuration
 public class LoadDatabase {
 
     private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
 
-    /**
-     * Bean para codificación de contraseñas con BCrypt.
-     */
+    // bean para encriptar contraseñas
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
