@@ -20,6 +20,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     // Verificar si existe usuario para una persona
     boolean existsByIdPersona(Long idPersona);
     
+    // Contar por estado activo
+    long countByActivoTrue();
+    long countByActivoFalse();
+    
     // Obtener usuarios con información de persona y rol
     @Query("SELECT u FROM Usuario u JOIN FETCH u.persona JOIN FETCH u.rol")
     List<Usuario> findAllWithPersonaAndRol();

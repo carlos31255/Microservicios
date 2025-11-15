@@ -14,6 +14,10 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     // Buscar clientes por categoría
     List<Cliente> findByCategoria(String categoria);
     
+    // Contar por estado activo
+    long countByActivoTrue();
+    long countByActivoFalse();
+    
     // Obtener clientes con información de persona
     @Query("SELECT c FROM Cliente c JOIN FETCH c.persona")
     List<Cliente> findAllWithPersona();
