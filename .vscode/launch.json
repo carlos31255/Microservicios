@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "EntregasServiceApplication",
+            "request": "launch",
+            "mainClass": "com.example.entregasService.EntregasServiceApplication",
+            "projectName": "entregas-service"
+        },
+        {
+            "type": "java",
             "name": "VentasServiceApplication",
             "request": "launch",
             "mainClass": "com.example.ventasservice.VentasServiceApplication",

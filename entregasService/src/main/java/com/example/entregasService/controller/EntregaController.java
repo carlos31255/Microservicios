@@ -2,6 +2,7 @@ package com.example.entregasService.controller;
 
 import com.example.entregasService.dto.ActualizarEstadoDTO;
 import com.example.entregasService.dto.AsignarTransportistaDTO;
+import com.example.entregasService.dto.ContarEstadoDTO;
 import com.example.entregasService.dto.EntregaDTO;
 import com.example.entregasService.dto.EntregaRequestDTO;
 import com.example.entregasService.service.EntregaService;
@@ -169,11 +170,11 @@ public class EntregaController {
     @GetMapping("/estadisticas/estado/{estado}")
     @Operation(summary = "Contar entregas por estado", 
                description = "Retorna el número total de entregas con un estado específico")
-    public ResponseEntity<Map<String, Long>> contarPorEstado(
+    public ResponseEntity<ContarEstadoDTO> contarPorEstado(
             @Parameter(description = "Estado de la entrega") @PathVariable String estado) {
         log.info("GET /api/entregas/estadisticas/estado/{} - Contando entregas", estado);
         Long count = entregaService.contarEntregasPorEstado(estado);
-        return ResponseEntity.ok(Map.of("estado", estado, "total", count));
+        return ResponseEntity.ok(new ContarEstadoDTO(estado, count));
     }
 
     @GetMapping("/estadisticas/transportista/{idTransportista}")
