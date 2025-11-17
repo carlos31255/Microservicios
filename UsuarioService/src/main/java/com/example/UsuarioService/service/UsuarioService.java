@@ -9,6 +9,7 @@ import com.example.UsuarioService.repository.RolRepository;
 import com.example.UsuarioService.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,17 +18,14 @@ import java.util.stream.Collectors;
 @Transactional
 public class UsuarioService {
 
-    private final UsuarioRepository usuarioRepository;
-    private final PersonaRepository personaRepository;
-    private final RolRepository rolRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, 
-                         PersonaRepository personaRepository,
-                         RolRepository rolRepository) {
-        this.usuarioRepository = usuarioRepository;
-        this.personaRepository = personaRepository;
-        this.rolRepository = rolRepository;
-    }
+    @Autowired
+    private PersonaRepository personaRepository;
+
+    @Autowired
+    private RolRepository rolRepository;
 
     // Obtener todos los usuarios
     public List<UsuarioDTO> obtenerTodosLosUsuarios() {

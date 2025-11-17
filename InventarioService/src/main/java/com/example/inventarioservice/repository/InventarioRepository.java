@@ -27,4 +27,7 @@ public interface InventarioRepository extends JpaRepository<Inventario, Long> {
     
     // Buscar por nombre de producto (parcial, ignorando mayúsculas)
     List<Inventario> findByNombreContainingIgnoreCase(String nombre);
+
+    // Buscar por modelo y talla (usado en la precarga para evitar duplicados)
+    Optional<Inventario> findByModeloIdAndTalla(Long modeloId, String talla);
 }

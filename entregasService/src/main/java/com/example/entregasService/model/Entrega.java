@@ -1,0 +1,47 @@
+package com.example.entregasService.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "entrega")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Entrega {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_entrega")
+    private Integer idEntrega;
+    
+    @NotNull(message = "El ID de la boleta es obligatorio")
+    @Column(name = "id_boleta", nullable = false)
+    private Integer idBoleta;
+    
+    @Column(name = "id_transportista")
+    private Integer idTransportista;
+    
+    @Column(name = "estado_entrega", length = 50, nullable = false)
+    private String estadoEntrega = "pendiente"; // pendiente, asignada, en_camino, entregada, cancelada
+    
+    @Column(name = "fecha_asignacion")
+    private LocalDateTime fechaAsignacion = LocalDateTime.now();
+    
+    @Column(name = "fecha_entrega")
+    private LocalDateTime fechaEntrega;
+    
+    @Column(name = "observacion", columnDefinition = "TEXT")
+    private String observacion;
+    
+    @Column(name = "direccion_entrega", columnDefinition = "TEXT")
+    private String direccionEntrega;
+    
+    @Column(name = "id_comuna")
+    private Integer idComuna;
+}

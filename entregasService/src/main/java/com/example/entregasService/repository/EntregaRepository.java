@@ -1,6 +1,6 @@
 package com.example.entregasService.repository;
 
-import com.example.entregasService.entity.Entrega;
+import com.example.entregasService.model.Entrega;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface EntregaRepository extends JpaRepository<Entrega, Long> {
+public interface EntregaRepository extends JpaRepository<Entrega, Integer> {
 
     // Buscar entrega por ID de boleta
     Optional<Entrega> findByIdBoleta(Integer idBoleta);
 
     // Buscar entregas por transportista
-    List<Entrega> findByIdTransportista(Long idTransportista);
+    List<Entrega> findByIdTransportista(Integer idTransportista);
 
     // Buscar entregas por estado
     List<Entrega> findByEstadoEntrega(String estadoEntrega);
@@ -30,7 +30,7 @@ public interface EntregaRepository extends JpaRepository<Entrega, Long> {
     List<Entrega> findEntregasPendientesDeAsignacion();
 
     // Buscar entregas por transportista y estado
-    List<Entrega> findByIdTransportistaAndEstadoEntrega(Long idTransportista, String estadoEntrega);
+    List<Entrega> findByIdTransportistaAndEstadoEntrega(Integer idTransportista, String estadoEntrega);
 
     // Buscar entregas por rango de fechas de asignación
     @Query("SELECT e FROM Entrega e WHERE e.fechaAsignacion BETWEEN :fechaInicio AND :fechaFin")
@@ -50,7 +50,7 @@ public interface EntregaRepository extends JpaRepository<Entrega, Long> {
     Long countByEstadoEntrega(String estadoEntrega);
 
     // Contar entregas por transportista
-    Long countByIdTransportista(Long idTransportista);
+    Long countByIdTransportista(Integer idTransportista);
 
     // Buscar entregas activas (no entregadas ni canceladas)
     @Query("SELECT e FROM Entrega e WHERE e.estadoEntrega NOT IN ('entregada', 'cancelada')")

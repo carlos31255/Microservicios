@@ -11,13 +11,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class EntregaDTO {
     
-    private Long idEntrega;
+    private Integer idEntrega;
     private Integer idBoleta;
-    private Long idTransportista;
+    private Integer idTransportista;
     private String estadoEntrega;
     private LocalDateTime fechaAsignacion;
     private LocalDateTime fechaEntrega;
     private String observacion;
-    private LocalDateTime fechaCreacion;
-    private LocalDateTime fechaActualizacion;
 }

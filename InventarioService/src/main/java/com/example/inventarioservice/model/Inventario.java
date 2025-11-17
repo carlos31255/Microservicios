@@ -37,4 +37,10 @@ public class Inventario {
     @Column(nullable = false)
     private Integer stockMinimo;
 
+    @Column(name = "id_modelo", nullable = true)
+    private Long modeloId;
+
+    @Column(name = "id_talla", nullable = true)
+    private Long tallaId;
+
 }

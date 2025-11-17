@@ -7,6 +7,7 @@ import com.example.inventarioservice.repository.InventarioRepository;
 import com.example.inventarioservice.repository.MovimientoInventarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,14 +16,11 @@ import java.util.stream.Collectors;
 @Transactional
 public class InventarioService {
     
-    private final InventarioRepository inventarioRepository;
-    private final MovimientoInventarioRepository movimientoInventarioRepository;
+    @Autowired
+    private InventarioRepository inventarioRepository;
 
-    public InventarioService(InventarioRepository inventarioRepository, 
-                            MovimientoInventarioRepository movimientoInventarioRepository) {
-        this.inventarioRepository = inventarioRepository;
-        this.movimientoInventarioRepository = movimientoInventarioRepository;
-    }
+    @Autowired
+    private MovimientoInventarioRepository movimientoInventarioRepository;
 
     // Obtener todo el inventario
     public List<InventarioDTO> obtenerTodoElInventario() {

@@ -5,6 +5,7 @@ import com.example.geografiaservice.model.Region;
 import com.example.geografiaservice.repository.RegionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,11 +14,8 @@ import java.util.stream.Collectors;
 @Transactional
 public class RegionService {
     
-    private final RegionRepository regionRepository;
-
-    public RegionService(RegionRepository regionRepository) {
-        this.regionRepository = regionRepository;
-    }
+    @Autowired
+    private RegionRepository regionRepository;
 
     //Obtener todas las regiones ordenadas
     public List<RegionDTO> obtenerTodasLasRegiones() {

@@ -6,6 +6,7 @@ import com.example.geografiaservice.repository.CiudadRepository;
 import com.example.geografiaservice.repository.RegionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,13 +15,11 @@ import java.util.stream.Collectors;
 @Transactional
 public class CiudadService {
     
-    private final CiudadRepository ciudadRepository;
-    private final RegionRepository regionRepository;
+    @Autowired
+    private CiudadRepository ciudadRepository;
 
-    public CiudadService(CiudadRepository ciudadRepository, RegionRepository regionRepository) {
-        this.ciudadRepository = ciudadRepository;
-        this.regionRepository = regionRepository;
-    }
+    @Autowired
+    private RegionRepository regionRepository;
 
     //Obtener todas las ciudades
     public List<CiudadDTO> obtenerTodasLasCiudades() {

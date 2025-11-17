@@ -7,6 +7,7 @@ import com.example.UsuarioService.repository.ClienteRepository;
 import com.example.UsuarioService.repository.PersonaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,13 +16,11 @@ import java.util.stream.Collectors;
 @Transactional
 public class ClienteService {
 
-    private final ClienteRepository clienteRepository;
-    private final PersonaRepository personaRepository;
+    @Autowired
+    private ClienteRepository clienteRepository;
 
-    public ClienteService(ClienteRepository clienteRepository, PersonaRepository personaRepository) {
-        this.clienteRepository = clienteRepository;
-        this.personaRepository = personaRepository;
-    }
+    @Autowired
+    private PersonaRepository personaRepository;
 
     // Obtener todos los clientes
     public List<ClienteDTO> obtenerTodosLosClientes() {

@@ -50,7 +50,7 @@ public class EntregaController {
     @GetMapping("/{id}")
     @Operation(summary = "Obtener entrega por ID", description = "Retorna una entrega específica por su ID")
     public ResponseEntity<EntregaDTO> obtenerEntregaPorId(
-            @Parameter(description = "ID de la entrega") @PathVariable Long id) {
+            @Parameter(description = "ID de la entrega") @PathVariable Integer id) {
         log.info("GET /api/entregas/{} - Obteniendo entrega por ID", id);
         EntregaDTO entrega = entregaService.obtenerEntregaPorId(id);
         return ResponseEntity.ok(entrega);
@@ -59,7 +59,7 @@ public class EntregaController {
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar entrega", description = "Actualiza los datos de una entrega existente")
     public ResponseEntity<EntregaDTO> actualizarEntrega(
-            @Parameter(description = "ID de la entrega") @PathVariable Long id,
+            @Parameter(description = "ID de la entrega") @PathVariable Integer id,
             @Valid @RequestBody EntregaRequestDTO requestDTO) {
         log.info("PUT /api/entregas/{} - Actualizando entrega", id);
         EntregaDTO entrega = entregaService.actualizarEntrega(id, requestDTO);
@@ -69,7 +69,7 @@ public class EntregaController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar entrega", description = "Elimina una entrega del sistema")
     public ResponseEntity<Map<String, String>> eliminarEntrega(
-            @Parameter(description = "ID de la entrega") @PathVariable Long id) {
+            @Parameter(description = "ID de la entrega") @PathVariable Integer id) {
         log.info("DELETE /api/entregas/{} - Eliminando entrega", id);
         entregaService.eliminarEntrega(id);
         return ResponseEntity.ok(Map.of("mensaje", "Entrega eliminada exitosamente"));
@@ -87,7 +87,7 @@ public class EntregaController {
     @GetMapping("/transportista/{idTransportista}")
     @Operation(summary = "Obtener entregas por transportista", description = "Retorna todas las entregas de un transportista")
     public ResponseEntity<List<EntregaDTO>> obtenerEntregasPorTransportista(
-            @Parameter(description = "ID del transportista") @PathVariable Long idTransportista) {
+            @Parameter(description = "ID del transportista") @PathVariable Integer idTransportista) {
         log.info("GET /api/entregas/transportista/{} - Obteniendo entregas por transportista", idTransportista);
         List<EntregaDTO> entregas = entregaService.obtenerEntregasPorTransportista(idTransportista);
         return ResponseEntity.ok(entregas);
@@ -125,7 +125,7 @@ public class EntregaController {
     @Operation(summary = "Asignar transportista a entrega", 
                description = "Asigna un transportista a una entrega pendiente")
     public ResponseEntity<EntregaDTO> asignarTransportista(
-            @Parameter(description = "ID de la entrega") @PathVariable Long id,
+            @Parameter(description = "ID de la entrega") @PathVariable Integer id,
             @Valid @RequestBody AsignarTransportistaDTO asignarDTO) {
         log.info("PATCH /api/entregas/{}/asignar-transportista - Asignando transportista", id);
         EntregaDTO entrega = entregaService.asignarTransportista(id, asignarDTO);
@@ -136,7 +136,7 @@ public class EntregaController {
     @Operation(summary = "Actualizar estado de entrega", 
                description = "Actualiza el estado de una entrega")
     public ResponseEntity<EntregaDTO> actualizarEstado(
-            @Parameter(description = "ID de la entrega") @PathVariable Long id,
+            @Parameter(description = "ID de la entrega") @PathVariable Integer id,
             @Valid @RequestBody ActualizarEstadoDTO estadoDTO) {
         log.info("PATCH /api/entregas/{}/estado - Actualizando estado a: {}", id, estadoDTO.getEstadoEntrega());
         EntregaDTO entrega = entregaService.actualizarEstado(id, estadoDTO);
@@ -147,7 +147,7 @@ public class EntregaController {
     @Operation(summary = "Completar entrega", 
                description = "Marca una entrega como completada y registra la fecha de entrega")
     public ResponseEntity<EntregaDTO> completarEntrega(
-            @Parameter(description = "ID de la entrega") @PathVariable Long id,
+            @Parameter(description = "ID de la entrega") @PathVariable Integer id,
             @RequestBody(required = false) Map<String, String> body) {
         log.info("PATCH /api/entregas/{}/completar - Completando entrega", id);
         String observacion = body != null ? body.get("observacion") : null;
@@ -159,7 +159,7 @@ public class EntregaController {
     @Operation(summary = "Cancelar entrega", 
                description = "Marca una entrega como cancelada")
     public ResponseEntity<EntregaDTO> cancelarEntrega(
-            @Parameter(description = "ID de la entrega") @PathVariable Long id,
+            @Parameter(description = "ID de la entrega") @PathVariable Integer id,
             @RequestBody(required = false) Map<String, String> body) {
         log.info("PATCH /api/entregas/{}/cancelar - Cancelando entrega", id);
         String observacion = body != null ? body.get("observacion") : null;
@@ -181,7 +181,7 @@ public class EntregaController {
     @Operation(summary = "Contar entregas por transportista", 
                description = "Retorna el número total de entregas de un transportista")
     public ResponseEntity<Map<String, Object>> contarPorTransportista(
-            @Parameter(description = "ID del transportista") @PathVariable Long idTransportista) {
+            @Parameter(description = "ID del transportista") @PathVariable Integer idTransportista) {
         log.info("GET /api/entregas/estadisticas/transportista/{} - Contando entregas", idTransportista);
         Long count = entregaService.contarEntregasPorTransportista(idTransportista);
         return ResponseEntity.ok(Map.of("idTransportista", idTransportista, "total", count));

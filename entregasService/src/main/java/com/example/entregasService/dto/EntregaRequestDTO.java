@@ -13,7 +13,7 @@ public class EntregaRequestDTO {
     @NotNull(message = "El ID de la boleta es obligatorio")
     private Integer idBoleta;
     
-    private Long idTransportista;
+    private Integer idTransportista;
     
     private String estadoEntrega;
     

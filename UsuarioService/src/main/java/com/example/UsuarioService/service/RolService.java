@@ -5,6 +5,7 @@ import com.example.UsuarioService.model.Rol;
 import com.example.UsuarioService.repository.RolRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,11 +14,8 @@ import java.util.stream.Collectors;
 @Transactional
 public class RolService {
 
-    private final RolRepository rolRepository;
-
-    public RolService(RolRepository rolRepository) {
-        this.rolRepository = rolRepository;
-    }
+    @Autowired
+    private RolRepository rolRepository;
 
     // Obtener todos los roles
     public List<RolDTO> obtenerTodosLosRoles() {

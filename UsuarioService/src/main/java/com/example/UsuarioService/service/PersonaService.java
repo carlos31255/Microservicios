@@ -6,6 +6,7 @@ import com.example.UsuarioService.repository.PersonaRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,13 +15,11 @@ import java.util.stream.Collectors;
 @Transactional
 public class PersonaService {
 
-    private final PersonaRepository personaRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private PersonaRepository personaRepository;
 
-    public PersonaService(PersonaRepository personaRepository, BCryptPasswordEncoder passwordEncoder) {
-        this.personaRepository = personaRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     // Obtener todas las personas
     public List<PersonaDTO> obtenerTodasLasPersonas() {
