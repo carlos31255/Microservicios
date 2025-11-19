@@ -8,8 +8,12 @@ import com.example.entregasService.model.Entrega;
 import com.example.entregasService.repository.EntregaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +27,9 @@ public class EntregaService {
     
     @Autowired
     private EntregaRepository entregaRepository;
+
+    @Value("${services.usuario.url:http://localhost:8083}")
+    private String usuarioServiceUrl;
 
     // CRUD básico
     public EntregaDTO crearEntrega(EntregaRequestDTO requestDTO) {
@@ -119,6 +126,20 @@ public class EntregaService {
 
         Entrega entrega = entregaRepository.findById(idEntrega)
                 .orElseThrow(() -> new NoSuchElementException("Entrega no encontrada con ID: " + idEntrega));
+
+        // Validar existencia del transportista en UsuarioService
+        if (asignarDTO.getIdTransportista() != null) {
+            RestTemplate rest = new RestTemplate();
+            String url = usuarioServiceUrl + "/api/transportistas/" + asignarDTO.getIdTransportista();
+            try {
+                ResponseEntity<String> resp = rest.getForEntity(url, String.class);
+                if (!resp.getStatusCode().is2xxSuccessful()) {
+                    throw new NoSuchElementException("Transportista no encontrado: " + asignarDTO.getIdTransportista());
+                }
+            } catch (RestClientException ex) {
+                throw new NoSuchElementException("No se pudo validar transportista: " + ex.getMessage());
+            }
+        }
 
         entrega.setIdTransportista(asignarDTO.getIdTransportista());
         entrega.setFechaAsignacion(LocalDateTime.now());

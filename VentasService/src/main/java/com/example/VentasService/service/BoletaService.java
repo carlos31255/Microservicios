@@ -8,6 +8,14 @@ import com.example.ventasservice.repository.DetalleBoletaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,6 +31,12 @@ public class BoletaService {
     
     @Autowired
     private DetalleBoletaRepository detalleBoletaRepository;
+
+    @Value("${services.inventario.url:http://localhost:8082}")
+    private String inventarioServiceUrl;
+
+    @Value("${services.entregas.url:http://localhost:8084}")
+    private String entregasServiceUrl;
     
     // Obtener todas las boletas
     public List<BoletaDTO> obtenerTodasLasBoletas() {
@@ -85,7 +99,49 @@ public class BoletaService {
                 .collect(Collectors.toList());
         
         detalleBoletaRepository.saveAll(detalles);
-        
+
+        // Ajustar inventario (sincrónico) para cada detalle
+        RestTemplate rest = new RestTemplate();
+        for (DetalleBoleta d : detalles) {
+            try {
+                String url = inventarioServiceUrl + "/api/inventario/" + d.getInventarioId() + "/ajustar";
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                Integer delta = -Math.abs(d.getCantidad());
+                java.util.Map<String, Object> body = java.util.Map.of(
+                        "cantidad", delta,
+                        "tipo", "salida",
+                        "motivo", "venta",
+                        "usuarioId", boletaGuardada.getClienteId()
+                );
+                HttpEntity<java.util.Map<String, Object>> req = new HttpEntity<>(body, headers);
+                ResponseEntity<String> resp = rest.exchange(url, HttpMethod.PUT, req, String.class);
+                if (!resp.getStatusCode().is2xxSuccessful()) {
+                    throw new IllegalStateException("Ajuste de inventario falló para inventarioId=" + d.getInventarioId());
+                }
+            } catch (RestClientException | IllegalStateException ex) {
+                // Fallo en ajuste de inventario: revertir transacción
+                throw new RuntimeException("No fue posible ajustar inventario: " + ex.getMessage(), ex);
+            }
+        }
+
+        // Crear entrega en EntregasService (sincrónico, no crítico)
+        try {
+            RestTemplate r2 = new RestTemplate();
+            String urlEntrega = entregasServiceUrl + "/api/entregas";
+            HttpHeaders headers2 = new HttpHeaders();
+            headers2.setContentType(MediaType.APPLICATION_JSON);
+            java.util.Map<String, Object> entregaBody = java.util.Map.of(
+                    "idBoleta", boletaGuardada.getId(),
+                    "estadoEntrega", "pendiente"
+            );
+            HttpEntity<java.util.Map<String, Object>> req2 = new HttpEntity<>(entregaBody, headers2);
+            r2.postForEntity(urlEntrega, req2, String.class);
+        } catch (RestClientException e) {
+            // No hacemos rollback por fallo de creación de entrega, sólo logueamos
+            System.err.println("Advertencia: no se pudo crear entrega: " + e.getMessage());
+        }
+
         return convertirADTOConDetalles(boletaGuardada);
     }
     
