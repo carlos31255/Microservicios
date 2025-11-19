@@ -1,5 +1,7 @@
 package com.example.inventarioservice.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Schema(description = "Marca")
 public class Marca {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

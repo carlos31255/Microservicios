@@ -13,12 +13,14 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @Entity
 @Table(name = "comunas")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Comuna")
 public class Comuna {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

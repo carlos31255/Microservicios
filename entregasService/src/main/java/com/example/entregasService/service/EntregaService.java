@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import java.time.Duration;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,6 +32,9 @@ public class EntregaService {
 
     @Value("${services.usuario.url:http://localhost:8083}")
     private String usuarioServiceUrl;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private WebClient.Builder webClientBuilder;
 
     // CRUD básico
     public EntregaDTO crearEntrega(EntregaRequestDTO requestDTO) {
@@ -129,14 +134,16 @@ public class EntregaService {
 
         // Validar existencia del transportista en UsuarioService
         if (asignarDTO.getIdTransportista() != null) {
-            RestTemplate rest = new RestTemplate();
-            String url = usuarioServiceUrl + "/api/transportistas/" + asignarDTO.getIdTransportista();
             try {
-                ResponseEntity<String> resp = rest.getForEntity(url, String.class);
-                if (!resp.getStatusCode().is2xxSuccessful()) {
-                    throw new NoSuchElementException("Transportista no encontrado: " + asignarDTO.getIdTransportista());
-                }
-            } catch (RestClientException ex) {
+                WebClient client = webClientBuilder.baseUrl(usuarioServiceUrl).build();
+                client.get()
+                        .uri("/api/transportistas/{id}", asignarDTO.getIdTransportista())
+                        .retrieve()
+                        .toBodilessEntity()
+                        .block(Duration.ofSeconds(4));
+            } catch (WebClientResponseException.NotFound nf) {
+                throw new NoSuchElementException("Transportista no encontrado: " + asignarDTO.getIdTransportista());
+            } catch (Exception ex) {
                 throw new NoSuchElementException("No se pudo validar transportista: " + ex.getMessage());
             }
         }

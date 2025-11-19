@@ -1,5 +1,7 @@
 package com.example.entregasService.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Entrega")
 public class Entrega {
     
     @Id

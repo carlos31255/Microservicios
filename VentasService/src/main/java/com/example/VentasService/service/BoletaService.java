@@ -15,7 +15,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import java.time.Duration;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,6 +32,9 @@ public class BoletaService {
     
     @Autowired
     private DetalleBoletaRepository detalleBoletaRepository;
+
+    @Autowired
+    private org.springframework.web.reactive.function.client.WebClient.Builder webClientBuilder;
 
     @Value("${services.inventario.url:http://localhost:8082}")
     private String inventarioServiceUrl;
@@ -100,13 +104,10 @@ public class BoletaService {
         
         detalleBoletaRepository.saveAll(detalles);
 
-        // Ajustar inventario (sincrónico) para cada detalle
-        RestTemplate rest = new RestTemplate();
+        // Ajustar inventario (sincrónico) para cada detalle usando WebClient
         for (DetalleBoleta d : detalles) {
             try {
-                String url = inventarioServiceUrl + "/api/inventario/" + d.getInventarioId() + "/ajustar";
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
+                WebClient client = webClientBuilder.baseUrl(inventarioServiceUrl).build();
                 Integer delta = -Math.abs(d.getCantidad());
                 java.util.Map<String, Object> body = java.util.Map.of(
                         "cantidad", delta,
@@ -114,30 +115,35 @@ public class BoletaService {
                         "motivo", "venta",
                         "usuarioId", boletaGuardada.getClienteId()
                 );
-                HttpEntity<java.util.Map<String, Object>> req = new HttpEntity<>(body, headers);
-                ResponseEntity<String> resp = rest.exchange(url, HttpMethod.PUT, req, String.class);
-                if (!resp.getStatusCode().is2xxSuccessful()) {
-                    throw new IllegalStateException("Ajuste de inventario falló para inventarioId=" + d.getInventarioId());
-                }
-            } catch (RestClientException | IllegalStateException ex) {
+                client.put()
+                        .uri("/api/inventario/{id}/ajustar", d.getInventarioId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(body)
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .timeout(Duration.ofSeconds(6))
+                        .block(Duration.ofSeconds(7));
+            } catch (Exception ex) {
                 // Fallo en ajuste de inventario: revertir transacción
                 throw new RuntimeException("No fue posible ajustar inventario: " + ex.getMessage(), ex);
             }
         }
 
-        // Crear entrega en EntregasService (sincrónico, no crítico)
+        // Crear entrega en EntregasService (sincrónico, no crítico) usando WebClient
         try {
-            RestTemplate r2 = new RestTemplate();
-            String urlEntrega = entregasServiceUrl + "/api/entregas";
-            HttpHeaders headers2 = new HttpHeaders();
-            headers2.setContentType(MediaType.APPLICATION_JSON);
+            WebClient client2 = webClientBuilder.baseUrl(entregasServiceUrl).build();
             java.util.Map<String, Object> entregaBody = java.util.Map.of(
                     "idBoleta", boletaGuardada.getId(),
                     "estadoEntrega", "pendiente"
             );
-            HttpEntity<java.util.Map<String, Object>> req2 = new HttpEntity<>(entregaBody, headers2);
-            r2.postForEntity(urlEntrega, req2, String.class);
-        } catch (RestClientException e) {
+            client2.post()
+                    .uri("/api/entregas")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(entregaBody)
+                    .retrieve()
+                    .toBodilessEntity()
+                    .block(Duration.ofSeconds(5));
+        } catch (Exception e) {
             // No hacemos rollback por fallo de creación de entrega, sólo logueamos
             System.err.println("Advertencia: no se pudo crear entrega: " + e.getMessage());
         }
