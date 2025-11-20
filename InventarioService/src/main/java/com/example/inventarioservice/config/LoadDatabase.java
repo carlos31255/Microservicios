@@ -30,10 +30,17 @@ public class LoadDatabase {
                                    ModeloZapatoRepository modeloRepository,
                                    TallaRepository tallaRepository) {
         return args -> {
-            // Si ya hay inventario, asumimos que la DB está poblada
-            if (inventarioRepository.count() > 0) {
-                log.info("La base de datos ya contiene datos. Saltando la inicialización.");
-                return;
+            log.info("Inicialización forzada: limpiando tablas de inventario, modelos y lookup antes de precarga...");
+
+            // Borrar datos previos para re-seed limpio (el usuario indicó que puede eliminar la BD)
+            try {
+                inventarioRepository.deleteAll();
+                modeloRepository.deleteAll();
+                marcaRepository.deleteAll();
+                tallaRepository.deleteAll();
+                log.info("Tablas inventario/modelo/marca/talla limpiadas.");
+            } catch (Exception e) {
+                log.warn("No se pudieron limpiar todas las tablas: {}", e.getMessage());
             }
 
             log.info("Inicializando tablas lookup (marca, modelo, talla) y cargando inventario de prueba...");
@@ -68,39 +75,50 @@ public class LoadDatabase {
                 tallaRepository.saveAll(Arrays.asList(t36, t37, t38, t39, t40, t41, t42, t43));
             }
 
-            // ------------------ Crear modelos por producto ------------------
-            if (modeloRepository.count() == 0) {
-                // Mapear productos a marcas por nombre de marca contenido
-                Marca nike = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Nike")).findFirst().orElse(null);
-                Marca adidas = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Adidas")).findFirst().orElse(null);
-                Marca puma = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Puma")).findFirst().orElse(null);
-                Marca converse = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Converse")).findFirst().orElse(null);
-                Marca vans = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Vans")).findFirst().orElse(null);
-                Marca nb = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("New Balance")).findFirst().orElse(null);
-                Marca asics = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Asics")).findFirst().orElse(null);
-                Marca skechers = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Skechers")).findFirst().orElse(null);
-                Marca reebok = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Reebok")).findFirst().orElse(null);
-                Marca timberland = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Timberland")).findFirst().orElse(null);
-                Marca drmartens = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Dr. Martens")).findFirst().orElse(null);
-                Marca stepstyle = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("StepStyle")).findFirst().orElse(null);
+            // ------------------ Crear / Actualizar modelos por producto ------------------
+            // Creamos una lista de modelos deseados y hacemos upsert por nombre para
+            // no romper referencias desde Inventario (actualiza si existe, inserta si falta).
+            // Mapear productos a marcas por nombre de marca contenido
+            Marca nike = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Nike")).findFirst().orElse(null);
+            Marca adidas = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Adidas")).findFirst().orElse(null);
+            Marca puma = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Puma")).findFirst().orElse(null);
+            Marca converse = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Converse")).findFirst().orElse(null);
+            Marca vans = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Vans")).findFirst().orElse(null);
+            Marca nb = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("New Balance")).findFirst().orElse(null);
+            Marca asics = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Asics")).findFirst().orElse(null);
+            Marca skechers = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Skechers")).findFirst().orElse(null);
+            Marca reebok = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Reebok")).findFirst().orElse(null);
+            Marca timberland = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Timberland")).findFirst().orElse(null);
+            Marca drmartens = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Dr. Martens")).findFirst().orElse(null);
+            Marca stepstyle = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("StepStyle")).findFirst().orElse(null);
 
-                ModeloZapato m1 = new ModeloZapato(null, "Nike Air Max 270", nike != null ? nike.getId() : null, "Nike Air Max 270 modelo");
-                ModeloZapato m2 = new ModeloZapato(null, "Adidas Ultraboost 22", adidas != null ? adidas.getId() : null, "Adidas Ultraboost 22 modelo");
-                ModeloZapato m3 = new ModeloZapato(null, "Puma RS-X", puma != null ? puma.getId() : null, "Puma RS-X modelo");
-                ModeloZapato m4 = new ModeloZapato(null, "Converse Chuck Taylor", converse != null ? converse.getId() : null, "Converse modelo");
-                ModeloZapato m5 = new ModeloZapato(null, "Vans Old Skool", vans != null ? vans.getId() : null, "Vans modelo");
-                ModeloZapato m6 = new ModeloZapato(null, "New Balance 1080v12", nb != null ? nb.getId() : null, "NB modelo");
-                ModeloZapato m7 = new ModeloZapato(null, "Asics Gel-Kayano 29", asics != null ? asics.getId() : null, "Asics modelo");
-                ModeloZapato m8 = new ModeloZapato(null, "Skechers D'Lites", skechers != null ? skechers.getId() : null, "Skechers modelo");
-                ModeloZapato m9 = new ModeloZapato(null, "Reebok Club C 85", reebok != null ? reebok.getId() : null, "Reebok modelo");
-                ModeloZapato m10 = new ModeloZapato(null, "Timberland 6-Inch Premium", timberland != null ? timberland.getId() : null, "Timberland modelo");
-                ModeloZapato m11 = new ModeloZapato(null, "Dr. Martens 1460", drmartens != null ? drmartens.getId() : null, "DrMartens modelo");
-                ModeloZapato m12 = new ModeloZapato(null, "StepStyle Classic", stepstyle != null ? stepstyle.getId() : null, "Zapatillas clásicas cómodas");
-                ModeloZapato m13 = new ModeloZapato(null, "StepStyle Runner", stepstyle != null ? stepstyle.getId() : null, "Runner ligero para entrenamiento");
-                ModeloZapato m14 = new ModeloZapato(null, "StepStyle Urban", stepstyle != null ? stepstyle.getId() : null, "Casual urbano con diseño moderno");
-                ModeloZapato m15 = new ModeloZapato(null, "StepStyle Kids", stepstyle != null ? stepstyle.getId() : null, "Zapatillas para niños");
+            List<ModeloZapato> modelosDeseados = Arrays.asList(
+                new ModeloZapato(null, "Nike Air Max 270", nike != null ? nike.getId() : null, "Nike Air Max 270 modelo", null, 0),
+                new ModeloZapato(null, "Adidas Ultraboost 22", adidas != null ? adidas.getId() : null, "Adidas Ultraboost 22 modelo", null, 0),
+                new ModeloZapato(null, "Puma RS-X", puma != null ? puma.getId() : null, "Puma RS-X modelo", null, 0),
+                new ModeloZapato(null, "Converse Chuck Taylor", converse != null ? converse.getId() : null, "Converse modelo", null, 0),
+                new ModeloZapato(null, "Vans Old Skool", vans != null ? vans.getId() : null, "Vans modelo", null, 0),
+                new ModeloZapato(null, "New Balance 1080v12", nb != null ? nb.getId() : null, "NB modelo", null, 0),
+                new ModeloZapato(null, "Asics Gel-Kayano 29", asics != null ? asics.getId() : null, "Asics modelo", null, 0),
+                new ModeloZapato(null, "Skechers D'Lites", skechers != null ? skechers.getId() : null, "Skechers modelo", null, 0),
+                new ModeloZapato(null, "Reebok Club C 85", reebok != null ? reebok.getId() : null, "Reebok modelo", null, 0),
+                new ModeloZapato(null, "Timberland 6-Inch Premium", timberland != null ? timberland.getId() : null, "Timberland modelo", null, 0),
+                new ModeloZapato(null, "Dr. Martens 1460", drmartens != null ? drmartens.getId() : null, "DrMartens modelo", null, 0),
+                new ModeloZapato(null, "StepStyle Classic", stepstyle != null ? stepstyle.getId() : null, "Zapatillas clásicas cómodas", null, 0),
+                new ModeloZapato(null, "StepStyle Runner", stepstyle != null ? stepstyle.getId() : null, "Runner ligero para entrenamiento", null, 0),
+                new ModeloZapato(null, "StepStyle Urban", stepstyle != null ? stepstyle.getId() : null, "Casual urbano con diseño moderno", null, 0),
+                new ModeloZapato(null, "StepStyle Kids", stepstyle != null ? stepstyle.getId() : null, "Zapatillas para niños", null, 0)
+            );
 
-                modeloRepository.saveAll(Arrays.asList(m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,m13,m14,m15));
+            for (ModeloZapato modelo : modelosDeseados) {
+                ModeloZapato existente = modeloRepository.findByNombreIgnoreCase(modelo.getNombre());
+                if (existente != null) {
+                    existente.setMarcaId(modelo.getMarcaId());
+                    existente.setDescripcion(modelo.getDescripcion());
+                    modeloRepository.save(existente);
+                } else {
+                    modeloRepository.save(modelo);
+                }
             }
 
             // ==================== ZAPATILLAS DEPORTIVAS ====================

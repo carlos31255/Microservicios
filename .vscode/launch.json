@@ -5,7 +5,8 @@
             "name": "EntregasServiceApplication",
             "request": "launch",
             "mainClass": "com.example.entregasService.EntregasServiceApplication",
-            "projectName": "entregas-service"
+            "projectName": "entregas-service",
+            "vmArgs": " -Dcom.sun.management.jmxremote"
         },
         {
             "type": "java",
@@ -22,7 +23,8 @@
             "mainClass": "com.example.inventarioservice.InventarioserviceApplication",
             "projectName": "inventarioservice",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=63635 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=inventarioservice"
         },
         {
             "type": "java",
@@ -41,6 +43,16 @@
             "cwd": "${workspaceFolder}",
             "mainClass": "com.example.UsuarioService.UsuarioServiceApplication",
             "projectName": "UsuarioService",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-GeografiaServiceApplication<geografiaservice>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.example.geografiaservice.GeografiaServiceApplication",
+            "projectName": "geografiaservice",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }

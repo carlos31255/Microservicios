@@ -32,4 +32,10 @@ public class ModeloZapato {
     @Column(length = 255)
     private String descripcion;
 
+    @Column(name = "imagen_url", length = 500)
+    private String imagenUrl;
+
+    @Column(name = "precio", nullable = false)
+    private Integer precioUnitario;
+
 }
