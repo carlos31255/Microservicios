@@ -25,8 +25,11 @@ import java.util.stream.Collectors;
 @Transactional
 public class EntregaService {
 
+
+
     @Autowired
     private EntregaRepository entregaRepository;
+
     // Inyectar los clientes WebClient pre-configurados
     @Autowired
     @Qualifier("ventasWebClient")
@@ -36,52 +39,67 @@ public class EntregaService {
     @Qualifier("usuarioWebClient")
     private WebClient usuarioWebClient;
 
+    // `ventasWebClient` se usa para obtener información de boletas (VentasService)
+    // `usuarioWebClient` se usa para obtener información de clientes/transportistas (UsuarioService)
+
     
+    // Devuelve todas las entregas como DTOs; enriquece con datos externos cuando procede.
     public List<EntregaDTO> obtenerTodasLasEntregas() {
         return entregaRepository.findAll().stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
+    // Busca una entrega por id y la devuelve como DTO; lanza NoSuchElementException si no existe.
     public EntregaDTO obtenerEntregaPorId(Integer id) {
         Entrega entrega = entregaRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Entrega no encontrada: " + id));
         return toDTO(entrega);
     }
 
+    // Crea y persiste una nueva entrega a partir de request; devuelve el DTO enriquecido.
     public EntregaDTO crearEntrega(EntregaRequestDTO requestDTO) {
         Entrega entrega = toEntity(requestDTO);
         // Validaciones adicionales podrían ir aquí
         return toDTO(entregaRepository.save(entrega));
     }
 
-    // Buscar por Transportista
+    // Obtiene entregas asignadas a un transportista específico.
     public List<EntregaDTO> getEntregasByTransportista(Integer idTransportista) {
         return entregaRepository.findByIdTransportista(idTransportista).stream()
                 .map(this::toDTO) // Usamos el toDTO inteligente que creamos antes
                 .collect(Collectors.toList());
     }
 
-    // Buscar por Estado
+    // Filtra entregas por estado y devuelve los DTOs.
     public List<EntregaDTO> getEntregasByEstado(String estado) {
         return entregaRepository.findByEstadoEntrega(estado).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
-    // Asignar Transportista
+    // Asigna un transportista válido a la entrega, actualiza fecha y persiste.
     public EntregaDTO asignarTransportista(Integer idEntrega, Integer idTransportista) {
         Entrega entrega = entregaRepository.findById(idEntrega)
-                .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
+                .orElseThrow(() -> new NoSuchElementException("Entrega no encontrada"));
+
+        // Validación opcional del transportista
+        if (!validarTransportista(idTransportista)) {
+             throw new NoSuchElementException("El transportista con ID " + idTransportista + " no es válido.");
+        }
 
         entrega.setIdTransportista(idTransportista);
-        entrega.setEstadoEntrega("asignada"); // Cambiamos estado automáticamente
+        
+        // MODIFICACIÓN: Mantenemos el estado en "pendiente" explícitamente
+        // Eliminamos el cambio a "asignada" o "en_camino"
+        entrega.setEstadoEntrega("pendiente"); 
+        
         entrega.setFechaAsignacion(LocalDateTime.now());
 
         return toDTO(entregaRepository.save(entrega));
     }
 
-    // Completar Entrega (Con observación)
+    // Marca la entrega como completada, guarda observación y fecha de entrega.
     public EntregaDTO completarEntrega(Integer idEntrega, String observacion) {
         Entrega entrega = entregaRepository.findById(idEntrega)
                 .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
@@ -93,7 +111,7 @@ public class EntregaService {
         return toDTO(entregaRepository.save(entrega));
     }
 
-    // Cambiar Estado Genérico
+    // Cambia el estado de una entrega al nuevo valor indicado.
     public EntregaDTO cambiarEstado(Integer idEntrega, String nuevoEstado) {
         Entrega entrega = entregaRepository.findById(idEntrega)
                 .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
@@ -102,7 +120,7 @@ public class EntregaService {
         return toDTO(entregaRepository.save(entrega));
     }
 
-    // Conversión Entidad a DTO con enriquecimiento externo 
+    // Convierte Entrega a EntregaDTO e intenta enriquecer con boleta/cliente externos.
     private EntregaDTO toDTO(Entrega entrega) {
         if (entrega == null) return null;
 
@@ -179,6 +197,7 @@ public class EntregaService {
     }
 
 
+    // Mapea EntregaRequestDTO a Entrega; inicializa estado por defecto y fecha de asignación.
     private Entrega toEntity(EntregaRequestDTO request) {
         if (request == null) return null;
         Entrega e = new Entrega();
@@ -190,6 +209,22 @@ public class EntregaService {
         e.setObservacion(request.getObservacion());
         e.setFechaAsignacion(LocalDateTime.now());
         return e;
+    }
+
+
+    private boolean validarTransportista(Integer idTransportista) {
+        if (idTransportista == null) return true; // Si es null, no validamos (o lanzamos error, depende de tu lógica)
+        try {
+             usuarioWebClient.get()
+                    .uri("/api/transportistas/" + idTransportista)
+                    .retrieve()
+                    .toBodilessEntity()
+                    .block(Duration.ofSeconds(1));
+             return true;
+        } catch (Exception e) {
+            log.warn("Validación de transportista falló: {}", e.getMessage());
+            return false;
+        }
     }
    
 }
