@@ -1,22 +1,20 @@
 package com.example.entregasService.service;
 
-import com.example.entregasService.dto.ActualizarEstadoDTO;
-import com.example.entregasService.dto.AsignarTransportistaDTO;
 import com.example.entregasService.dto.EntregaDTO;
 import com.example.entregasService.dto.EntregaRequestDTO;
+import com.example.entregasService.dto.externo.BoletaExternaDTO;
+import com.example.entregasService.dto.externo.ClienteExternoDTO;
 import com.example.entregasService.model.Entrega;
 import com.example.entregasService.repository.EntregaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import java.time.Duration;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -26,237 +24,90 @@ import java.util.stream.Collectors;
 @Slf4j
 @Transactional
 public class EntregaService {
-    
+
     @Autowired
     private EntregaRepository entregaRepository;
+    // Inyectar los clientes WebClient pre-configurados
+    @Autowired
+    @Qualifier("ventasWebClient")
+    private WebClient ventasWebClient;
 
-    @Value("${services.usuario.url:http://localhost:8083}")
-    private String usuarioServiceUrl;
+    @Autowired
+    @Qualifier("usuarioWebClient")
+    private WebClient usuarioWebClient;
 
-    @org.springframework.beans.factory.annotation.Autowired
-    private WebClient.Builder webClientBuilder;
-
-    // CRUD básico
-    public EntregaDTO crearEntrega(EntregaRequestDTO requestDTO) {
-        log.info("Creando nueva entrega para boleta: {}", requestDTO.getIdBoleta());
-
-        if (entregaRepository.existsByIdBoleta(requestDTO.getIdBoleta())) {
-            throw new IllegalArgumentException("Ya existe una entrega para la boleta: " + requestDTO.getIdBoleta());
-        }
-
-        Entrega entrega = toEntity(requestDTO);
-        Entrega entregaGuardada = entregaRepository.save(entrega);
-
-        log.info("Entrega creada exitosamente con ID: {}", entregaGuardada.getIdEntrega());
-        return toDTO(entregaGuardada);
-    }
-
-    public EntregaDTO obtenerEntregaPorId(Integer id) {
-        log.info("Buscando entrega con ID: {}", id);
-        Entrega entrega = entregaRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Entrega no encontrada con ID: " + id));
-        return toDTO(entrega);
-    }
-
+    
     public List<EntregaDTO> obtenerTodasLasEntregas() {
-        log.info("Obteniendo todas las entregas");
         return entregaRepository.findAll().stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
-    public EntregaDTO actualizarEntrega(Integer id, EntregaRequestDTO requestDTO) {
-        log.info("Actualizando entrega con ID: {}", id);
-
+    public EntregaDTO obtenerEntregaPorId(Integer id) {
         Entrega entrega = entregaRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Entrega no encontrada con ID: " + id));
-
-        updateEntityFromRequest(requestDTO, entrega);
-        Entrega entregaActualizada = entregaRepository.save(entrega);
-
-        log.info("Entrega actualizada exitosamente con ID: {}", id);
-        return toDTO(entregaActualizada);
-    }
-
-    public void eliminarEntrega(Integer id) {
-        log.info("Eliminando entrega con ID: {}", id);
-
-        if (!entregaRepository.existsById(id)) {
-            throw new NoSuchElementException("Entrega no encontrada con ID: " + id);
-        }
-
-        entregaRepository.deleteById(id);
-        log.info("Entrega eliminada exitosamente con ID: {}", id);
-    }
-
-    // Consultas especializadas
-    public EntregaDTO obtenerEntregaPorBoleta(Integer idBoleta) {
-        log.info("Buscando entrega para boleta: {}", idBoleta);
-        Entrega entrega = entregaRepository.findByIdBoleta(idBoleta)
-                .orElseThrow(() -> new NoSuchElementException("No se encontró entrega para la boleta: " + idBoleta));
+                .orElseThrow(() -> new NoSuchElementException("Entrega no encontrada: " + id));
         return toDTO(entrega);
     }
 
-    public List<EntregaDTO> obtenerEntregasPorTransportista(Integer idTransportista) {
-        log.info("Obteniendo entregas del transportista: {}", idTransportista);
+    public EntregaDTO crearEntrega(EntregaRequestDTO requestDTO) {
+        Entrega entrega = toEntity(requestDTO);
+        // Validaciones adicionales podrían ir aquí
+        return toDTO(entregaRepository.save(entrega));
+    }
+
+    // Buscar por Transportista
+    public List<EntregaDTO> getEntregasByTransportista(Integer idTransportista) {
         return entregaRepository.findByIdTransportista(idTransportista).stream()
-                .map(this::toDTO)
+                .map(this::toDTO) // Usamos el toDTO inteligente que creamos antes
                 .collect(Collectors.toList());
     }
 
-    public List<EntregaDTO> obtenerEntregasPorEstado(String estado) {
-        log.info("Obteniendo entregas con estado: {}", estado);
+    // Buscar por Estado
+    public List<EntregaDTO> getEntregasByEstado(String estado) {
         return entregaRepository.findByEstadoEntrega(estado).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
-    public List<EntregaDTO> obtenerEntregasPendientesDeAsignacion() {
-        log.info("Obteniendo entregas pendientes de asignación");
-        return entregaRepository.findEntregasPendientesDeAsignacion().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    public List<EntregaDTO> obtenerEntregasActivas() {
-        log.info("Obteniendo entregas activas");
-        return entregaRepository.findEntregasActivas().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    // Operaciones de negocio
-    public EntregaDTO asignarTransportista(Integer idEntrega, AsignarTransportistaDTO asignarDTO) {
-        log.info("Asignando transportista {} a entrega {}", asignarDTO.getIdTransportista(), idEntrega);
-
+    // Asignar Transportista
+    public EntregaDTO asignarTransportista(Integer idEntrega, Integer idTransportista) {
         Entrega entrega = entregaRepository.findById(idEntrega)
-                .orElseThrow(() -> new NoSuchElementException("Entrega no encontrada con ID: " + idEntrega));
+                .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
 
-        // Validar existencia del transportista en UsuarioService
-        if (asignarDTO.getIdTransportista() != null) {
-            try {
-                WebClient client = webClientBuilder.baseUrl(usuarioServiceUrl).build();
-                client.get()
-                        .uri("/api/transportistas/{id}", asignarDTO.getIdTransportista())
-                        .retrieve()
-                        .toBodilessEntity()
-                        .block(Duration.ofSeconds(4));
-            } catch (WebClientResponseException.NotFound nf) {
-                throw new NoSuchElementException("Transportista no encontrado: " + asignarDTO.getIdTransportista());
-            } catch (Exception ex) {
-                throw new NoSuchElementException("No se pudo validar transportista: " + ex.getMessage());
-            }
-        }
-
-        entrega.setIdTransportista(asignarDTO.getIdTransportista());
+        entrega.setIdTransportista(idTransportista);
+        entrega.setEstadoEntrega("asignada"); // Cambiamos estado automáticamente
         entrega.setFechaAsignacion(LocalDateTime.now());
 
-        if (asignarDTO.getObservacion() != null && !asignarDTO.getObservacion().isEmpty()) {
-            entrega.setObservacion(asignarDTO.getObservacion());
-        }
-
-        if ("pendiente".equals(entrega.getEstadoEntrega())) {
-            entrega.setEstadoEntrega("en_camino");
-        }
-
-        Entrega entregaActualizada = entregaRepository.save(entrega);
-        log.info("Transportista asignado exitosamente a entrega {}", idEntrega);
-
-        return toDTO(entregaActualizada);
+        return toDTO(entregaRepository.save(entrega));
     }
 
-    public EntregaDTO actualizarEstado(Integer idEntrega, ActualizarEstadoDTO estadoDTO) {
-        log.info("Actualizando estado de entrega {} a {}", idEntrega, estadoDTO.getEstadoEntrega());
-
-        Entrega entrega = entregaRepository.findById(idEntrega)
-                .orElseThrow(() -> new NoSuchElementException("Entrega no encontrada con ID: " + idEntrega));
-
-        entrega.setEstadoEntrega(estadoDTO.getEstadoEntrega());
-
-        if (estadoDTO.getObservacion() != null && !estadoDTO.getObservacion().isEmpty()) {
-            String observacionActual = entrega.getObservacion() != null ? entrega.getObservacion() + " | " : "";
-            entrega.setObservacion(observacionActual + estadoDTO.getObservacion());
-        }
-
-        if ("entregada".equals(estadoDTO.getEstadoEntrega())) {
-            entrega.setFechaEntrega(LocalDateTime.now());
-        }
-
-        Entrega entregaActualizada = entregaRepository.save(entrega);
-        log.info("Estado de entrega {} actualizado exitosamente", idEntrega);
-
-        return toDTO(entregaActualizada);
-    }
-
+    // Completar Entrega (Con observación)
     public EntregaDTO completarEntrega(Integer idEntrega, String observacion) {
-        log.info("Completando entrega {}", idEntrega);
-
         Entrega entrega = entregaRepository.findById(idEntrega)
-                .orElseThrow(() -> new NoSuchElementException("Entrega no encontrada con ID: " + idEntrega));
+                .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
 
-        entrega.setEstadoEntrega("entregada");
+        entrega.setEstadoEntrega("completada"); // O "entregada", asegúrate que coincida con tu filtro en Android
+        entrega.setObservacion(observacion);
         entrega.setFechaEntrega(LocalDateTime.now());
 
-        if (observacion != null && !observacion.isEmpty()) {
-            String observacionActual = entrega.getObservacion() != null ? entrega.getObservacion() + " | " : "";
-            entrega.setObservacion(observacionActual + observacion);
-        }
-
-        Entrega entregaActualizada = entregaRepository.save(entrega);
-        log.info("Entrega {} completada exitosamente", idEntrega);
-
-        return toDTO(entregaActualizada);
+        return toDTO(entregaRepository.save(entrega));
     }
 
-    public EntregaDTO cancelarEntrega(Integer idEntrega, String observacion) {
-        log.info("Cancelando entrega {}", idEntrega);
-
+    // Cambiar Estado Genérico
+    public EntregaDTO cambiarEstado(Integer idEntrega, String nuevoEstado) {
         Entrega entrega = entregaRepository.findById(idEntrega)
-                .orElseThrow(() -> new NoSuchElementException("Entrega no encontrada con ID: " + idEntrega));
+                .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
 
-        entrega.setEstadoEntrega("cancelada");
-
-        if (observacion != null && !observacion.isEmpty()) {
-            String observacionActual = entrega.getObservacion() != null ? entrega.getObservacion() + " | " : "";
-            entrega.setObservacion(observacionActual + "CANCELADA: " + observacion);
-        }
-
-        Entrega entregaActualizada = entregaRepository.save(entrega);
-        log.info("Entrega {} cancelada exitosamente", idEntrega);
-
-        return toDTO(entregaActualizada);
+        entrega.setEstadoEntrega(nuevoEstado);
+        return toDTO(entregaRepository.save(entrega));
     }
 
-    // Estadísticas
-    public Long contarEntregasPorEstado(String estado) {
-        log.info("Contando entregas con estado: {}", estado);
-        return entregaRepository.countByEstadoEntrega(estado);
-    }
-
-    public Long contarEntregasPorTransportista(Integer idTransportista) {
-        log.info("Contando entregas del transportista: {}", idTransportista);
-        return entregaRepository.countByIdTransportista(idTransportista);
-    }
-
-    // Búsquedas por fecha
-    public List<EntregaDTO> buscarPorFechaAsignacion(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        log.info("Buscando entregas por fecha de asignación entre {} y {}", fechaInicio, fechaFin);
-        return entregaRepository.findByFechaAsignacionBetween(fechaInicio, fechaFin).stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    public List<EntregaDTO> buscarPorFechaEntrega(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-        log.info("Buscando entregas por fecha de entrega entre {} y {}", fechaInicio, fechaFin);
-        return entregaRepository.findByFechaEntregaBetween(fechaInicio, fechaFin).stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    // --- Helper mapping methods (manual mapping) ---
+    // Conversión Entidad a DTO con enriquecimiento externo 
     private EntregaDTO toDTO(Entrega entrega) {
         if (entrega == null) return null;
+
         EntregaDTO dto = new EntregaDTO();
+        // 1. Mapeo Local
         dto.setIdEntrega(entrega.getIdEntrega());
         dto.setIdBoleta(entrega.getIdBoleta());
         dto.setIdTransportista(entrega.getIdTransportista());
@@ -264,8 +115,69 @@ public class EntregaService {
         dto.setFechaAsignacion(entrega.getFechaAsignacion());
         dto.setFechaEntrega(entrega.getFechaEntrega());
         dto.setObservacion(entrega.getObservacion());
+        dto.setDireccionEntrega(entrega.getDireccionEntrega());
+        dto.setIdComuna(entrega.getIdComuna());
+
+        // Valores por defecto para evitar NullPointerException en el Front
+        dto.setTotalBoleta(0); 
+        dto.setNombreCliente("Cargando...");
+        dto.setTelefonoCliente("No disponible");
+
+        // Llamadas Externas Protegidas
+        try {
+            // LLAMADA A VENTAS
+            BoletaExternaDTO boleta = ventasWebClient.get()
+                    .uri("/api/ventas/boletas/" + entrega.getIdBoleta())
+                    .retrieve()
+                    .bodyToMono(BoletaExternaDTO.class)
+                    .block(Duration.ofSeconds(2));
+
+            if (boleta != null) {
+                dto.setTotalBoleta(boleta.getTotal());
+
+                // LLAMADA A USUARIOS (Solo si tenemos clienteId)
+                if (boleta.getClienteId() != null) {
+                    try {
+                        ClienteExternoDTO cliente = usuarioWebClient.get()
+                                .uri("/api/clientes/" + boleta.getClienteId())
+                                .retrieve()
+                                .bodyToMono(ClienteExternoDTO.class)
+                                .block(Duration.ofSeconds(2));
+
+                        if (cliente != null) {
+                            dto.setNombreCliente(cliente.getNombreCompleto());
+                            dto.setTelefonoCliente(cliente.getTelefono());
+                        }
+                    } catch (WebClientResponseException.NotFound ex) {
+                        log.warn("Cliente ID {} no encontrado en UsuarioService", boleta.getClienteId());
+                        dto.setNombreCliente("Cliente no encontrado (ID: " + boleta.getClienteId() + ")");
+                    } catch (Exception e) {
+                        log.error("Error conectando con UsuarioService: {}", e.getMessage());
+                        dto.setNombreCliente("Error serv. usuarios");
+                    }
+                } else {
+                    dto.setNombreCliente("Boleta sin cliente asociado");
+                }
+            }
+
+        } catch (WebClientResponseException.NotFound ex) {
+            // En caso de entrega para boleta inexistente
+            log.error("Inconsistencia: Boleta {} no existe en VentasService", entrega.getIdBoleta());
+            dto.setNombreCliente("ERROR: Boleta no existe");
+            dto.setTotalBoleta(0);
+        } catch (WebClientResponseException ex) {
+            // Errores 5xx del servidor de ventas
+            log.error("Error servidor Ventas: {}", ex.getStatusCode());
+            dto.setNombreCliente("Sistema Ventas no disponible");
+        } catch (Exception e) {
+            // Timeouts u otros errores de red
+            log.error("Error de conexión al enriquecer entrega {}: {}", entrega.getIdEntrega(), e.getMessage());
+            dto.setNombreCliente("Error de conexión");
+        }
+
         return dto;
     }
+
 
     private Entrega toEntity(EntregaRequestDTO request) {
         if (request == null) return null;
@@ -273,22 +185,11 @@ public class EntregaService {
         e.setIdBoleta(request.getIdBoleta());
         e.setIdTransportista(request.getIdTransportista());
         e.setEstadoEntrega(request.getEstadoEntrega() != null && !request.getEstadoEntrega().isEmpty()
-                ? request.getEstadoEntrega() : "pendiente");
+                ? request.getEstadoEntrega()
+                : "pendiente");
         e.setObservacion(request.getObservacion());
         e.setFechaAsignacion(LocalDateTime.now());
         return e;
     }
-
-    private void updateEntityFromRequest(EntregaRequestDTO request, Entrega e) {
-        if (request == null || e == null) return;
-        if (request.getIdTransportista() != null) {
-            e.setIdTransportista(request.getIdTransportista());
-        }
-        if (request.getEstadoEntrega() != null && !request.getEstadoEntrega().isEmpty()) {
-            e.setEstadoEntrega(request.getEstadoEntrega());
-        }
-        if (request.getObservacion() != null) {
-            e.setObservacion(request.getObservacion());
-        }
-    }
+   
 }

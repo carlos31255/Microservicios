@@ -18,4 +18,11 @@ public class EntregaDTO {
     private LocalDateTime fechaAsignacion;
     private LocalDateTime fechaEntrega;
     private String observacion;
+    private String direccionEntrega;
+    private Integer idComuna;
+
+    // Campos externos (transientes, se llenan con WebClient)
+    private String nombreCliente;
+    private String telefonoCliente;
+    private Integer totalBoleta;
 }
