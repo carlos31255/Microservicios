@@ -50,7 +50,7 @@ public class EstadisticasController {
     @GetMapping("/cliente/{id}")
     @Operation(summary = "Estadísticas por cliente",
                description = "Retorna estadísticas de compras de un cliente específico")
-    public ResponseEntity<Map<String, Object>> obtenerEstadisticasCliente(@PathVariable Integer id) {
+    public ResponseEntity<Map<String, Object>> obtenerEstadisticasCliente(@PathVariable Long id) {
         Map<String, Object> stats = new HashMap<>();
         
         long totalCompras = boletaRepository.countByClienteId(id);

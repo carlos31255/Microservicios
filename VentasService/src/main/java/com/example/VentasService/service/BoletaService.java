@@ -50,20 +50,20 @@ public class BoletaService {
     }
     
     // Obtener boleta por ID con sus detalles
-    public Optional<BoletaDTO> obtenerBoletaPorId(Integer id) {
+    public Optional<BoletaDTO> obtenerBoletaPorId(Long id) {
         return boletaRepository.findById(id)
                 .map(this::convertirADTOConDetalles);
     }
     
     // Obtener boletas por cliente
-    public List<BoletaDTO> obtenerBoletasPorCliente(Integer clienteId) {
+    public List<BoletaDTO> obtenerBoletasPorCliente(Long clienteId) {
         return boletaRepository.findByClienteIdOrderByFechaVentaDesc(clienteId).stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
     
     // Obtener detalles de una boleta
-    public List<DetalleBoletaDTO> obtenerDetallesPorBoleta(Integer boletaId) {
+    public List<DetalleBoletaDTO> obtenerDetallesPorBoleta(Long boletaId) {
         return detalleBoletaRepository.findByBoletaIdOrderByIdAsc(boletaId).stream()
                 .map(this::convertirDetalleADTO)
                 .collect(Collectors.toList());
@@ -153,7 +153,7 @@ public class BoletaService {
     
     // Cambiar estado de boleta
     @Transactional
-    public Optional<BoletaDTO> cambiarEstado(Integer id, String nuevoEstado) {
+    public Optional<BoletaDTO> cambiarEstado(Long id, String nuevoEstado) {
         return boletaRepository.findById(id)
                 .map(boleta -> {
                     boleta.setEstado(nuevoEstado);

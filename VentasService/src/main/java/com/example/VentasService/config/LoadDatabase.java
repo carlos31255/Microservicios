@@ -42,7 +42,7 @@ public class LoadDatabase {
 
             // IDs de clientes reales del UsuarioService
             // idPersona: 3=González, 4=Ramírez, 5=Martínez, 6=Fernández, 7=López, 8=Silva, 9=Rojas, 10=Morales, 11=Vargas
-            Integer[] clienteIds = {3, 4, 5, 6, 7, 8, 9, 10, 11};
+            Long[] clienteIds = {3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L};
             String[] clienteNombres = {
                 "María González", "Pedro Ramírez", "Ana Martínez", 
                 "Luis Fernández", "Carmen López", "Roberto Silva",
@@ -50,7 +50,7 @@ public class LoadDatabase {
             };
 
             // IDs de inventario simulados (ajustar según tu InventarioService)
-            Integer[] inventarioIds = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+            Long[] inventarioIds = {1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L, 11L, 12L};
             String[] productos = {
                 "Zapatilla Nike Air Max", "Zapatilla Adidas Superstar", "Zapatilla Puma RS-X",
                 "Zapatilla Reebok Classic", "Zapatilla New Balance 574", "Zapatilla Converse Chuck Taylor",
@@ -68,7 +68,7 @@ public class LoadDatabase {
 
             // Crear 20 boletas de ejemplo
             for (int i = 0; i < 20; i++) {
-                Integer clienteId = clienteIds[random.nextInt(clienteIds.length)];
+                Long clienteId = clienteIds[random.nextInt(clienteIds.length)];
                 String clienteNombre = clienteNombres[random.nextInt(clienteNombres.length)];
                 String metodoPago = metodosPago[random.nextInt(metodosPago.length)];
                 String estado = estados[random.nextInt(estados.length)];
@@ -94,7 +94,7 @@ public class LoadDatabase {
 
                 for (int j = 0; j < cantidadProductos; j++) {
                     int productoIndex = random.nextInt(productos.length);
-                    Integer inventarioId = inventarioIds[productoIndex];
+                    Long inventarioId = inventarioIds[productoIndex];
                     String producto = productos[productoIndex];
                     String talla = tallas[random.nextInt(tallas.length)];
                     Integer cantidad = 1 + random.nextInt(3); // 1-3 unidades
@@ -136,7 +136,7 @@ public class LoadDatabase {
 
             DetalleBoleta detallePendiente = new DetalleBoleta();
             detallePendiente.setBoletaId(boletaPendiente.getId());
-            detallePendiente.setInventarioId(1);
+            detallePendiente.setInventarioId(1L);
             detallePendiente.setNombreProducto("Zapatilla Nike Air Max");
             detallePendiente.setTalla("40");
             detallePendiente.setCantidad(1);
@@ -157,7 +157,7 @@ public class LoadDatabase {
 
             DetalleBoleta detalleCancelada = new DetalleBoleta();
             detalleCancelada.setBoletaId(boletaCancelada.getId());
-            detalleCancelada.setInventarioId(2);
+            detalleCancelada.setInventarioId(2L);
             detalleCancelada.setNombreProducto("Zapatilla Adidas Superstar");
             detalleCancelada.setTalla("42");
             detalleCancelada.setCantidad(2);
@@ -178,7 +178,7 @@ public class LoadDatabase {
             log.info("Boletas completadas: {}", boletaRepository.countByEstado("completada"));
             log.info("Boletas canceladas: {}", boletaRepository.countByEstado("cancelada"));
             
-            Integer totalVentas = boletaRepository.findAll().stream()
+                Integer totalVentas = boletaRepository.findAll().stream()
                     .mapToInt(b -> b.getTotal() != null ? b.getTotal() : 0)
                     .sum();
             log.info("Total en ventas: ${}", String.format("%,d", totalVentas));

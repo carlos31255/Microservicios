@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DetalleBoletaDTO {
-    private Integer id;
-    private Integer boletaId;
-    private Integer inventarioId;
+    private Long id;
+    private Long boletaId;
+    private Long inventarioId;
     private String nombreProducto;
     private String talla;
     private Integer cantidad;

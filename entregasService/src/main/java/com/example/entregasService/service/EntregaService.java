@@ -51,7 +51,7 @@ public class EntregaService {
     }
 
     // Busca una entrega por id y la devuelve como DTO; lanza NoSuchElementException si no existe.
-    public EntregaDTO obtenerEntregaPorId(Integer id) {
+    public EntregaDTO obtenerEntregaPorId(Long id) {
         Entrega entrega = entregaRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Entrega no encontrada: " + id));
         return toDTO(entrega);
@@ -65,7 +65,7 @@ public class EntregaService {
     }
 
     // Obtiene entregas asignadas a un transportista específico.
-    public List<EntregaDTO> getEntregasByTransportista(Integer idTransportista) {
+    public List<EntregaDTO> getEntregasByTransportista(Long idTransportista) {
         return entregaRepository.findByIdTransportista(idTransportista).stream()
                 .map(this::toDTO) // Usamos el toDTO inteligente que creamos antes
                 .collect(Collectors.toList());
@@ -79,12 +79,12 @@ public class EntregaService {
     }
 
     // Asigna un transportista válido a la entrega, actualiza fecha y persiste.
-    public EntregaDTO asignarTransportista(Integer idEntrega, Integer idTransportista) {
+    public EntregaDTO asignarTransportista(Long idEntrega, Long idTransportista) {
         Entrega entrega = entregaRepository.findById(idEntrega)
                 .orElseThrow(() -> new NoSuchElementException("Entrega no encontrada"));
 
         // Validación opcional del transportista
-        if (!validarTransportista(idTransportista)) {
+           if (!validarTransportista(idTransportista)) {
              throw new NoSuchElementException("El transportista con ID " + idTransportista + " no es válido.");
         }
 
@@ -100,7 +100,7 @@ public class EntregaService {
     }
 
     // Marca la entrega como completada, guarda observación y fecha de entrega.
-    public EntregaDTO completarEntrega(Integer idEntrega, String observacion) {
+    public EntregaDTO completarEntrega(Long idEntrega, String observacion) {
         Entrega entrega = entregaRepository.findById(idEntrega)
                 .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
 
@@ -112,7 +112,7 @@ public class EntregaService {
     }
 
     // Cambia el estado de una entrega al nuevo valor indicado.
-    public EntregaDTO cambiarEstado(Integer idEntrega, String nuevoEstado) {
+    public EntregaDTO cambiarEstado(Long idEntrega, String nuevoEstado) {
         Entrega entrega = entregaRepository.findById(idEntrega)
                 .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
 
@@ -144,7 +144,7 @@ public class EntregaService {
         // Llamadas Externas Protegidas
         try {
             // LLAMADA A VENTAS
-            BoletaExternaDTO boleta = ventasWebClient.get()
+                    BoletaExternaDTO boleta = ventasWebClient.get()
                     .uri("/api/ventas/boletas/" + entrega.getIdBoleta())
                     .retrieve()
                     .bodyToMono(BoletaExternaDTO.class)
@@ -154,10 +154,10 @@ public class EntregaService {
                 dto.setTotalBoleta(boleta.getTotal());
 
                 // LLAMADA A USUARIOS (Solo si tenemos clienteId)
-                if (boleta.getClienteId() != null) {
+                    if (boleta.getClienteId() != null) {
                     try {
                         ClienteExternoDTO cliente = usuarioWebClient.get()
-                                .uri("/api/clientes/" + boleta.getClienteId())
+                            .uri("/api/clientes/" + boleta.getClienteId())
                                 .retrieve()
                                 .bodyToMono(ClienteExternoDTO.class)
                                 .block(Duration.ofSeconds(2));
@@ -212,7 +212,7 @@ public class EntregaService {
     }
 
 
-    private boolean validarTransportista(Integer idTransportista) {
+    private boolean validarTransportista(Long idTransportista) {
         if (idTransportista == null) return true; // Si es null, no validamos (o lanzamos error, depende de tu lógica)
         try {
              usuarioWebClient.get()

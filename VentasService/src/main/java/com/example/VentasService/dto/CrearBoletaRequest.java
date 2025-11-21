@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CrearBoletaRequest {
-    private Integer clienteId;
+    private Long clienteId;
     private String metodoPago;
     private String observaciones;
     private List<DetalleBoletaDTO> detalles;

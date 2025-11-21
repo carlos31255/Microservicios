@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class AsignarTransportistaDTO {
     
     @NotNull(message = "El ID del transportista es obligatorio")
-    private Integer idTransportista;
+    private Long idTransportista;
     
     private String observacion;
 }

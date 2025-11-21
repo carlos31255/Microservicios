@@ -19,10 +19,10 @@ public class Boleta {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     
     @Column(name = "id_cliente", nullable = false)
-    private Integer clienteId;
+    private Long clienteId;
     
     @Column(name = "fecha_venta", nullable = false)
     private LocalDateTime fechaVenta;

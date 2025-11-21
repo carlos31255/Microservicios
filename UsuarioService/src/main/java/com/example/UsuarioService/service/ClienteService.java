@@ -85,12 +85,10 @@ public class ClienteService {
 
     // Eliminar cliente (borrado lógico)
     public boolean eliminarCliente(Long idPersona) {
-        Cliente cliente = clienteRepository.findById(idPersona).orElse(null);
-        if (cliente == null) {
+        if (!clienteRepository.existsById(idPersona)) {
             return false;
         }
-        cliente.setActivo(false);
-        clienteRepository.save(cliente);
+        clienteRepository.deleteById(idPersona);
         return true;
     }
 

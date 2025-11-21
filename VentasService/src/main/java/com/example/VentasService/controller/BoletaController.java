@@ -29,7 +29,7 @@ public class BoletaController {
     @GetMapping("/{id}")
     @Operation(summary = "Obtener boleta por ID",
                description = "Retorna una boleta específica con sus detalles")
-    public ResponseEntity<BoletaDTO> obtenerPorId(@PathVariable Integer id) {
+    public ResponseEntity<BoletaDTO> obtenerPorId(@PathVariable Long id) {
         return boletaService.obtenerBoletaPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -38,14 +38,14 @@ public class BoletaController {
     @GetMapping("/cliente/{idCliente}")
     @Operation(summary = "Obtener boletas por cliente",
                description = "Retorna todas las boletas de un cliente específico")
-    public ResponseEntity<List<BoletaDTO>> obtenerPorCliente(@PathVariable Integer idCliente) {
+    public ResponseEntity<List<BoletaDTO>> obtenerPorCliente(@PathVariable Long idCliente) {
         return ResponseEntity.ok(boletaService.obtenerBoletasPorCliente(idCliente));
     }
     
     @GetMapping("/{id}/detalles")
     @Operation(summary = "Obtener detalles de una boleta",
                description = "Retorna los productos incluidos en una boleta")
-    public ResponseEntity<List<DetalleBoletaDTO>> obtenerDetalles(@PathVariable Integer id) {
+    public ResponseEntity<List<DetalleBoletaDTO>> obtenerDetalles(@PathVariable Long id) {
         return ResponseEntity.ok(boletaService.obtenerDetallesPorBoleta(id));
     }
     
@@ -61,7 +61,7 @@ public class BoletaController {
     @Operation(summary = "Cambiar estado de boleta",
                description = "Actualiza el estado de una boleta (pendiente, confirmada, cancelada, completada)")
     public ResponseEntity<BoletaDTO> cambiarEstado(
-            @PathVariable Integer id,
+            @PathVariable Long id,
             @RequestBody CambiarEstadoRequest request) {
         return boletaService.cambiarEstado(id, request.getNuevoEstado())
                 .map(ResponseEntity::ok)

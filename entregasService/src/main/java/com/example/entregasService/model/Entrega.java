@@ -21,14 +21,14 @@ public class Entrega {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_entrega")
-    private Integer idEntrega;
+    private Long idEntrega;
     
     @NotNull(message = "El ID de la boleta es obligatorio")
     @Column(name = "id_boleta", nullable = false)
-    private Integer idBoleta;
+    private Long idBoleta;
     
     @Column(name = "id_transportista")
-    private Integer idTransportista;
+    private Long idTransportista;
     
     @Column(name = "estado_entrega", length = 50, nullable = false)
     private String estadoEntrega = "pendiente"; // pendiente, asignada, en_camino, entregada, cancelada
@@ -46,5 +46,5 @@ public class Entrega {
     private String direccionEntrega;
     
     @Column(name = "id_comuna")
-    private Integer idComuna;
+    private Long idComuna;
 }

@@ -28,9 +28,8 @@ public interface PersonaRepository extends JpaRepository<Persona, Long> {
     // Buscar por estado
     List<Persona> findByEstado(String estado);
     
-    // Contar por estado
-    long countByEstadoTrue();
-    long countByEstadoFalse();
+    // Contar por estado (ej: "activo" | "inactivo")
+    long countByEstado(String estado);
     
     // Buscar por nombre o apellido (parcial, ignorando mayúsculas)
     List<Persona> findByNombreContainingOrApellidoContaining(String nombre, String apellido);

@@ -17,13 +17,13 @@ public class DetalleBoleta {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     
     @Column(name = "id_boleta", nullable = false)
-    private Integer boletaId;
+    private Long boletaId;
     
     @Column(name = "id_inventario", nullable = false)
-    private Integer inventarioId;
+    private Long inventarioId;
     
     @Column(name = "nombre_producto", nullable = false, length = 200)
     private String nombreProducto;

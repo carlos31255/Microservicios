@@ -11,15 +11,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class EntregaDTO {
     
-    private Integer idEntrega;
-    private Integer idBoleta;
-    private Integer idTransportista;
+    private Long idEntrega;
+    private Long idBoleta;
+    private Long idTransportista;
     private String estadoEntrega;
     private LocalDateTime fechaAsignacion;
     private LocalDateTime fechaEntrega;
     private String observacion;
     private String direccionEntrega;
-    private Integer idComuna;
+    private Long idComuna;
 
     // Campos externos (transientes, se llenan con WebClient)
     private String nombreCliente;

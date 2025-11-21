@@ -19,6 +19,12 @@ public class SwaggerLinkPrinter implements ApplicationListener<ApplicationReadyE
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
+        // In tests the application context may not be a WebServerApplicationContext
+        if (!(event.getApplicationContext() instanceof WebServerApplicationContext)) {
+            log.debug("Application context is not a WebServerApplicationContext - skipping Swagger URL logging");
+            return;
+        }
+
         WebServerApplicationContext ctx = (WebServerApplicationContext) event.getApplicationContext();
         int port = ctx.getWebServer().getPort();
         String contextPath = env.getProperty("server.servlet.context-path", "");

@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 public class EntregaRequestDTO {
     
     @NotNull(message = "El ID de la boleta es obligatorio")
-    private Integer idBoleta;
+    private Long idBoleta;
     
-    private Integer idTransportista;
+    private Long idTransportista;
     
     private String estadoEntrega;
     

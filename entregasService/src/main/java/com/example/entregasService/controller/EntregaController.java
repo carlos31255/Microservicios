@@ -38,13 +38,13 @@ public class EntregaController {
 
     // GET api/entregas/{id}
     @GetMapping("/{id}")
-    public ResponseEntity<EntregaDTO> obtenerPorId(@PathVariable Integer id) {
+    public ResponseEntity<EntregaDTO> obtenerPorId(@PathVariable Long id) {
         return ResponseEntity.ok(entregaService.obtenerEntregaPorId(id));
     }
 
     // GET api/entregas/transportista/{transportistaId}
     @GetMapping("/transportista/{transportistaId}")
-    public ResponseEntity<List<EntregaDTO>> listarPorTransportista(@PathVariable Integer transportistaId) {
+    public ResponseEntity<List<EntregaDTO>> listarPorTransportista(@PathVariable Long transportistaId) {
         return ResponseEntity.ok(entregaService.getEntregasByTransportista(transportistaId));
     }
 
@@ -57,15 +57,15 @@ public class EntregaController {
     // PUT api/entregas/{id}/asignar?transportistaId=...
     @PutMapping("/{id}/asignar")
     public ResponseEntity<EntregaDTO> asignarTransportista(
-            @PathVariable Integer id,
-            @RequestParam Integer transportistaId) {
+            @PathVariable Long id,
+            @RequestParam Long transportistaId) {
         return ResponseEntity.ok(entregaService.asignarTransportista(id, transportistaId));
     }
 
     // PUT api/entregas/{id}/completar (Body es un String simple)
     @PutMapping("/{id}/completar")
     public ResponseEntity<EntregaDTO> completarEntrega(
-            @PathVariable Integer id,
+            @PathVariable Long id,
             @RequestBody(required = false) String observacion) {
         return ResponseEntity.ok(entregaService.completarEntrega(id, observacion));
     }
@@ -73,7 +73,7 @@ public class EntregaController {
     // PUT api/entregas/{id}/estado?nuevoEstado=...
     @PutMapping("/{id}/estado")
     public ResponseEntity<EntregaDTO> cambiarEstado(
-            @PathVariable Integer id,
+            @PathVariable Long id,
             @RequestParam String nuevoEstado) {
         return ResponseEntity.ok(entregaService.cambiarEstado(id, nuevoEstado));
     }

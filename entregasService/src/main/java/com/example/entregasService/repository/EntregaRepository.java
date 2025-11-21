@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface EntregaRepository extends JpaRepository<Entrega, Integer> {
+public interface EntregaRepository extends JpaRepository<Entrega, Long> {
     // Buscar entregas por idTransportista
-    List<Entrega> findByIdTransportista(Integer idTransportista);
+    List<Entrega> findByIdTransportista(Long idTransportista);
     // Buscar entregas por estadoEntrega
     List<Entrega> findByEstadoEntrega(String estadoEntrega);
 }

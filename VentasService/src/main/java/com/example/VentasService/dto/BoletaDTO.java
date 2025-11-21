@@ -11,8 +11,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BoletaDTO {
-    private Integer id;
-    private Integer clienteId;
+    private Long id;
+    private Long clienteId;
     private LocalDateTime fechaVenta;
     private Integer total;
     private String estado;

@@ -104,12 +104,10 @@ public class UsuarioService {
 
     // Eliminar usuario (borrado lógico)
     public boolean eliminarUsuario(Long idPersona) {
-        Usuario usuario = usuarioRepository.findById(idPersona).orElse(null);
-        if (usuario == null) {
+        if (!usuarioRepository.existsById(idPersona)) {
             return false;
         }
-        usuario.setActivo(false);
-        usuarioRepository.save(usuario);
+        usuarioRepository.deleteById(idPersona);
         return true;
     }
 

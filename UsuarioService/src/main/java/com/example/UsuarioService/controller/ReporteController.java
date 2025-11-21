@@ -37,9 +37,9 @@ public class ReporteController {
         estadisticas.put("totalClientes", clienteRepository.count());
         estadisticas.put("totalUsuarios", usuarioRepository.count());
         
-        // Contadores por estado (activos)
-        estadisticas.put("personasActivas", personaRepository.countByEstadoTrue());
-        estadisticas.put("personasInactivas", personaRepository.countByEstadoFalse());
+        // Contadores por estado (activos/inactivos)
+        estadisticas.put("personasActivas", personaRepository.countByEstado("activo"));
+        estadisticas.put("personasInactivas", personaRepository.countByEstado("inactivo"));
         estadisticas.put("clientesActivos", clienteRepository.countByActivoTrue());
         estadisticas.put("clientesInactivos", clienteRepository.countByActivoFalse());
         estadisticas.put("usuariosActivos", usuarioRepository.countByActivoTrue());
@@ -90,8 +90,8 @@ public class ReporteController {
     public ResponseEntity<Map<String, Long>> obtenerDistribucionPorEstado() {
         Map<String, Long> distribucion = new HashMap<>();
         
-        distribucion.put("activas", personaRepository.countByEstadoTrue());
-        distribucion.put("inactivas", personaRepository.countByEstadoFalse());
+        distribucion.put("activas", personaRepository.countByEstado("activo"));
+        distribucion.put("inactivas", personaRepository.countByEstado("inactivo"));
         
         return ResponseEntity.ok(distribucion);
     }

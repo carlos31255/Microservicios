@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class BoletaExternaDTO {
     // mapear los campos relevantes de la boleta externa(ventasService)
-    private Integer id;
-    private Integer clienteId;
+    private Long id;
+    private Long clienteId;
     private Integer total;
     private String metodoPago;
 }
