@@ -17,7 +17,11 @@ import com.example.inventarioservice.repository.TallaRepository;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.io.IOException;
+import java.util.Map;
+import org.springframework.core.io.ClassPathResource;
 
 @Configuration
 public class LoadDatabase {
@@ -92,23 +96,37 @@ public class LoadDatabase {
             Marca drmartens = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("Dr. Martens")).findFirst().orElse(null);
             Marca stepstyle = marcaRepository.findAll().stream().filter(m -> m.getNombre().equalsIgnoreCase("StepStyle")).findFirst().orElse(null);
 
-            List<ModeloZapato> modelosDeseados = Arrays.asList(
-                new ModeloZapato(null, "Nike Air Max 270", nike != null ? nike.getId() : null, "Nike Air Max 270 modelo", null, 0),
-                new ModeloZapato(null, "Adidas Ultraboost 22", adidas != null ? adidas.getId() : null, "Adidas Ultraboost 22 modelo", null, 0),
-                new ModeloZapato(null, "Puma RS-X", puma != null ? puma.getId() : null, "Puma RS-X modelo", null, 0),
-                new ModeloZapato(null, "Converse Chuck Taylor", converse != null ? converse.getId() : null, "Converse modelo", null, 0),
-                new ModeloZapato(null, "Vans Old Skool", vans != null ? vans.getId() : null, "Vans modelo", null, 0),
-                new ModeloZapato(null, "New Balance 1080v12", nb != null ? nb.getId() : null, "NB modelo", null, 0),
-                new ModeloZapato(null, "Asics Gel-Kayano 29", asics != null ? asics.getId() : null, "Asics modelo", null, 0),
-                new ModeloZapato(null, "Skechers D'Lites", skechers != null ? skechers.getId() : null, "Skechers modelo", null, 0),
-                new ModeloZapato(null, "Reebok Club C 85", reebok != null ? reebok.getId() : null, "Reebok modelo", null, 0),
-                new ModeloZapato(null, "Timberland 6-Inch Premium", timberland != null ? timberland.getId() : null, "Timberland modelo", null, 0),
-                new ModeloZapato(null, "Dr. Martens 1460", drmartens != null ? drmartens.getId() : null, "DrMartens modelo", null, 0),
-                new ModeloZapato(null, "StepStyle Classic", stepstyle != null ? stepstyle.getId() : null, "Zapatillas clásicas cómodas", null, 0),
-                new ModeloZapato(null, "StepStyle Runner", stepstyle != null ? stepstyle.getId() : null, "Runner ligero para entrenamiento", null, 0),
-                new ModeloZapato(null, "StepStyle Urban", stepstyle != null ? stepstyle.getId() : null, "Casual urbano con diseño moderno", null, 0),
-                new ModeloZapato(null, "StepStyle Kids", stepstyle != null ? stepstyle.getId() : null, "Zapatillas para niños", null, 0)
-            );
+            List<ModeloZapato> modelosDeseados = new ArrayList<>();
+            ModeloZapato m1 = new ModeloZapato();
+            m1.setNombre("Nike Air Max 270"); m1.setMarcaId(nike != null ? nike.getId() : null); m1.setDescripcion("Nike Air Max 270 modelo"); m1.setImagenUrl(null); m1.setPrecioUnitario(120000); modelosDeseados.add(m1);
+            ModeloZapato m2 = new ModeloZapato();
+            m2.setNombre("Adidas Ultraboost 22"); m2.setMarcaId(adidas != null ? adidas.getId() : null); m2.setDescripcion("Adidas Ultraboost 22 modelo"); m2.setImagenUrl(null); m2.setPrecioUnitario(130000); modelosDeseados.add(m2);
+            ModeloZapato m3 = new ModeloZapato();
+            m3.setNombre("Puma RS-X"); m3.setMarcaId(puma != null ? puma.getId() : null); m3.setDescripcion("Puma RS-X modelo"); m3.setImagenUrl(null); m3.setPrecioUnitario(90000); modelosDeseados.add(m3);
+            ModeloZapato m4 = new ModeloZapato();
+            m4.setNombre("Converse Chuck Taylor"); m4.setMarcaId(converse != null ? converse.getId() : null); m4.setDescripcion("Converse modelo"); m4.setImagenUrl(null); m4.setPrecioUnitario(60000); modelosDeseados.add(m4);
+            ModeloZapato m5 = new ModeloZapato();
+            m5.setNombre("Vans Old Skool"); m5.setMarcaId(vans != null ? vans.getId() : null); m5.setDescripcion("Vans modelo"); m5.setImagenUrl(null); m5.setPrecioUnitario(70000); modelosDeseados.add(m5);
+            ModeloZapato m6 = new ModeloZapato();
+            m6.setNombre("New Balance 1080v12"); m6.setMarcaId(nb != null ? nb.getId() : null); m6.setDescripcion("NB modelo"); m6.setImagenUrl(null); m6.setPrecioUnitario(110000); modelosDeseados.add(m6);
+            ModeloZapato m7 = new ModeloZapato();
+            m7.setNombre("Asics Gel-Kayano 29"); m7.setMarcaId(asics != null ? asics.getId() : null); m7.setDescripcion("Asics modelo"); m7.setImagenUrl(null); m7.setPrecioUnitario(100000); modelosDeseados.add(m7);
+            ModeloZapato m8 = new ModeloZapato();
+            m8.setNombre("Skechers D'Lites"); m8.setMarcaId(skechers != null ? skechers.getId() : null); m8.setDescripcion("Skechers modelo"); m8.setImagenUrl(null); m8.setPrecioUnitario(80000); modelosDeseados.add(m8);
+            ModeloZapato m9 = new ModeloZapato();
+            m9.setNombre("Reebok Club C 85"); m9.setMarcaId(reebok != null ? reebok.getId() : null); m9.setDescripcion("Reebok modelo"); m9.setImagenUrl(null); m9.setPrecioUnitario(65000); modelosDeseados.add(m9);
+            ModeloZapato m10 = new ModeloZapato();
+            m10.setNombre("Timberland 6-Inch Premium"); m10.setMarcaId(timberland != null ? timberland.getId() : null); m10.setDescripcion("Timberland modelo"); m10.setImagenUrl(null); m10.setPrecioUnitario(140000); modelosDeseados.add(m10);
+            ModeloZapato m11 = new ModeloZapato();
+            m11.setNombre("Dr. Martens 1460"); m11.setMarcaId(drmartens != null ? drmartens.getId() : null); m11.setDescripcion("DrMartens modelo"); m11.setImagenUrl(null); m11.setPrecioUnitario(90000); modelosDeseados.add(m11);
+            ModeloZapato m12 = new ModeloZapato();
+            m12.setNombre("StepStyle Classic"); m12.setMarcaId(stepstyle != null ? stepstyle.getId() : null); m12.setDescripcion("Zapatillas clásicas cómodas"); m12.setImagenUrl(null); m12.setPrecioUnitario(45000); modelosDeseados.add(m12);
+            ModeloZapato m13 = new ModeloZapato();
+            m13.setNombre("StepStyle Runner"); m13.setMarcaId(stepstyle != null ? stepstyle.getId() : null); m13.setDescripcion("Runner ligero para entrenamiento"); m13.setImagenUrl(null); m13.setPrecioUnitario(48000); modelosDeseados.add(m13);
+            ModeloZapato m14 = new ModeloZapato();
+            m14.setNombre("StepStyle Urban"); m14.setMarcaId(stepstyle != null ? stepstyle.getId() : null); m14.setDescripcion("Casual urbano con diseño moderno"); m14.setImagenUrl(null); m14.setPrecioUnitario(47000); modelosDeseados.add(m14);
+            ModeloZapato m15 = new ModeloZapato();
+            m15.setNombre("StepStyle Kids"); m15.setMarcaId(stepstyle != null ? stepstyle.getId() : null); m15.setDescripcion("Zapatillas para niños"); m15.setImagenUrl(null); m15.setPrecioUnitario(30000); modelosDeseados.add(m15);
 
             for (ModeloZapato modelo : modelosDeseados) {
                 ModeloZapato existente = modeloRepository.findByNombreIgnoreCase(modelo.getNombre());
@@ -118,6 +136,39 @@ public class LoadDatabase {
                     modeloRepository.save(existente);
                 } else {
                     modeloRepository.save(modelo);
+                }
+            }
+
+            // --- Mapear imágenes
+            Map<String, String> modelosToImage = Map.of(
+                    "stepstyle classic", "static/images/classic.jpg",
+                    "stepstyle runner", "static/images/runner.jpg",
+                    "stepstyle urban", "static/images/urban.jpg",
+                    "stepstyle kids", "static/images/kids.webp"
+            );
+
+            for (ModeloZapato modelo : modeloRepository.findAll()) {
+                if (modelo.getNombre() == null) continue;
+                String key = modelo.getNombre().toLowerCase();
+                for (Map.Entry<String, String> e : modelosToImage.entrySet()) {
+                    if (key.contains(e.getKey())) {
+                        try {
+                            ClassPathResource imgRes = new ClassPathResource(e.getValue());
+                            if (imgRes.exists()) {
+                                byte[] bytes = imgRes.getInputStream().readAllBytes();
+                                modelo.setImagen(bytes);
+                                // opcional: también establecer imagenUrl para compatibilidad
+                                modelo.setImagenUrl("/images/" + imgRes.getFilename());
+                                modeloRepository.save(modelo);
+                                log.info("Asociada imagen '{}' al modelo '{}'", imgRes.getFilename(), modelo.getNombre());
+                            } else {
+                                log.warn("Imagen no encontrada en classpath: {}", e.getValue());
+                            }
+                        } catch (IOException ioe) {
+                            log.warn("Error leyendo imagen {}: {}", e.getValue(), ioe.getMessage());
+                        }
+                        break;
+                    }
                 }
             }
 

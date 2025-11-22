@@ -1,8 +1,9 @@
 package com.example.inventarioservice.controller;
 
 import com.example.inventarioservice.dto.MovimientoInventarioDTO;
-import com.example.inventarioservice.model.MovimientosInventario;
 import com.example.inventarioservice.service.MovimientoInventarioService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,12 +14,8 @@ import java.util.List;
 @RequestMapping("/api/inventario/movimientos")
 @CrossOrigin(origins = "*")
 public class MovimientoInventarioController {
-
-    private final MovimientoInventarioService movimientoInventarioService;
-
-    public MovimientoInventarioController(MovimientoInventarioService movimientoInventarioService) {
-        this.movimientoInventarioService = movimientoInventarioService;
-    }
+    @Autowired
+    private MovimientoInventarioService movimientoInventarioService;
 
     // Obtener todos los movimientos
     @GetMapping

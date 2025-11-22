@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +21,11 @@ public class PersonaService {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    // Patrones de validación
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile("^(?=.*[A-Za-z])(?=.*\\d).{8,}$");
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^\\d{7,15}$");
 
     // Obtener todas las personas
     public List<PersonaDTO> obtenerTodasLasPersonas() {
@@ -68,6 +74,35 @@ public class PersonaService {
 
     // Crear persona
     public PersonaDTO crearPersona(PersonaDTO personaDTO) {
+        // Basic validations expected by mobile client
+        // Validate password only when provided (registration path)
+        if (personaDTO.getPassword() != null && !personaDTO.getPassword().isEmpty()) {
+            String pwd = personaDTO.getPassword();
+            if (!PASSWORD_PATTERN.matcher(pwd).matches()) {
+                throw new IllegalArgumentException("Password demasiado débil");
+            }
+        }
+        // Validate optional fields only when provided
+        if (personaDTO.getEmail() != null && !personaDTO.getEmail().trim().isEmpty()) {
+            if (!EMAIL_PATTERN.matcher(personaDTO.getEmail().trim()).matches()) {
+                throw new IllegalArgumentException("Email inválido");
+            }
+        }
+        if (personaDTO.getTelefono() != null && !personaDTO.getTelefono().trim().isEmpty()) {
+            if (!PHONE_PATTERN.matcher(personaDTO.getTelefono().trim()).matches()) {
+                throw new IllegalArgumentException("Teléfono inválido");
+            }
+        }
+        if (personaDTO.getCalle() != null && !personaDTO.getCalle().trim().isEmpty()) {
+            if (personaDTO.getCalle().trim().length() < 3 || personaDTO.getCalle().trim().length() > 80) {
+                throw new IllegalArgumentException("Calle inválida");
+            }
+        }
+        if (personaDTO.getNumeroPuerta() != null && !personaDTO.getNumeroPuerta().trim().isEmpty()) {
+            if (personaDTO.getNumeroPuerta().trim().length() > 10) {
+                throw new IllegalArgumentException("Número de puerta inválido");
+            }
+        }
         // Verificar que no exista el RUT
         if (personaRepository.existsByRut(personaDTO.getRut())) {
             throw new IllegalArgumentException("Ya existe una persona con RUT: " + personaDTO.getRut());

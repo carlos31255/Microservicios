@@ -3,6 +3,7 @@ package com.example.inventarioservice.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,6 +35,10 @@ public class ModeloZapato {
 
     @Column(name = "imagen_url", length = 500)
     private String imagenUrl;
+
+    @Lob
+    @Column(name = "imagen_blob", columnDefinition = "LONGBLOB")
+    private byte[] imagen;
 
     @Column(name = "precio", nullable = false)
     private Integer precioUnitario;
