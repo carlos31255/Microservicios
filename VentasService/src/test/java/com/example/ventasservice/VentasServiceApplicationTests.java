@@ -3,7 +3,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class VentasServiceApplicationTest {
+public class VentasServiceApplicationTests {
 
     @Test
 	void contextLoads() {
