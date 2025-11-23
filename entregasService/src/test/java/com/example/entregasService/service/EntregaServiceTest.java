@@ -3,7 +3,6 @@ package com.example.entregasService.service;
 import com.example.entregasService.dto.EntregaDTO;
 import com.example.entregasService.dto.EntregaRequestDTO;
 import com.example.entregasService.dto.externo.BoletaExternaDTO;
-import com.example.entregasService.dto.externo.ClienteExternoDTO;
 import com.example.entregasService.model.Entrega;
 import com.example.entregasService.repository.EntregaRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +14,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
