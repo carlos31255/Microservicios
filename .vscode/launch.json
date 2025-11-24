@@ -6,7 +6,7 @@
             "request": "launch",
             "mainClass": "com.example.entregasService.EntregasServiceApplication",
             "projectName": "entregas-service",
-            "vmArgs": " -Dcom.sun.management.jmxremote"
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=62341 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=entregas-service"
         },
         {
             "type": "java",
@@ -44,7 +44,8 @@
             "mainClass": "com.example.UsuarioService.UsuarioServiceApplication",
             "projectName": "UsuarioService",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=62346 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=UsuarioService"
         },
         {
             "type": "java",
@@ -53,6 +54,17 @@
             "cwd": "${workspaceFolder}",
             "mainClass": "com.example.geografiaservice.GeografiaServiceApplication",
             "projectName": "geografiaservice",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=62342 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=geografiaservice"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-VentasServiceApplication<VentasService>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.example.VentasService.VentasServiceApplication",
+            "projectName": "VentasService",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }
