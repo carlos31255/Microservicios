@@ -28,8 +28,8 @@ public class DetalleBoleta {
     @Column(name = "nombre_producto", nullable = false, length = 200)
     private String nombreProducto;
     
-    @Column(nullable = false, length = 50)
-    private String talla;
+    @Column(name = "talla_id", nullable = true)
+    private Long tallaId;
     
     @Column(nullable = false)
     private Integer cantidad;

@@ -1,5 +1,7 @@
 package com.example.ventasservice.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,13 +9,16 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DetalleBoletaDTO {
+public class CartItemResponse {
     private Long id;
-    private Long boletaId;
-    private Long inventarioId;
-    private String nombreProducto;
+    private Long clienteId;
+    private Long modeloId;
     private Long tallaId;
     private Integer cantidad;
     private Integer precioUnitario;
-    private Integer subtotal;
+    private String nombreProducto;
+    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaActualizacion;
+
+
 }

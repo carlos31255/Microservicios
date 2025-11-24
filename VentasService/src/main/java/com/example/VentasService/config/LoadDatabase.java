@@ -104,7 +104,8 @@ public class LoadDatabase {
                     detalle.setBoletaId(boletaGuardada.getId());
                     detalle.setInventarioId(inventarioId);
                     detalle.setNombreProducto(producto);
-                    detalle.setTalla(talla);
+                    // Usar talla como Integer si es necesario, aquí se deja null
+                    detalle.setTallaId(null);
                     detalle.setCantidad(cantidad);
                     detalle.setPrecioUnitario(precioUnitario);
                     // El subtotal se calcula automáticamente en @PrePersist
@@ -138,7 +139,7 @@ public class LoadDatabase {
             detallePendiente.setBoletaId(boletaPendiente.getId());
             detallePendiente.setInventarioId(1L);
             detallePendiente.setNombreProducto("Zapatilla Nike Air Max");
-            detallePendiente.setTalla("40");
+            detallePendiente.setTallaId(null);
             detallePendiente.setCantidad(1);
             detallePendiente.setPrecioUnitario(89990);
             detalleBoletaRepository.save(detallePendiente);
@@ -159,7 +160,7 @@ public class LoadDatabase {
             detalleCancelada.setBoletaId(boletaCancelada.getId());
             detalleCancelada.setInventarioId(2L);
             detalleCancelada.setNombreProducto("Zapatilla Adidas Superstar");
-            detalleCancelada.setTalla("42");
+            detalleCancelada.setTallaId(null);
             detalleCancelada.setCantidad(2);
             detalleCancelada.setPrecioUnitario(79990);
             detalleBoletaRepository.save(detalleCancelada);

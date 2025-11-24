@@ -9,17 +9,21 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.FetchType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "modelozapato")
+@Table(name = "producto")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "ModeloZapato")
-public class ModeloZapato {
+@Schema(description = "Producto (antes ModeloZapato)")
+public class Producto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -42,5 +46,11 @@ public class ModeloZapato {
 
     @Column(name = "precio", nullable = false)
     private Integer precioUnitario;
+
+        @ManyToMany(fetch = FetchType.LAZY)
+        @JoinTable(name = "producto_talla",
+            joinColumns = @JoinColumn(name = "producto_id"),
+            inverseJoinColumns = @JoinColumn(name = "talla_id"))
+        private java.util.Set<Talla> tallas = new java.util.HashSet<>();
 
 }

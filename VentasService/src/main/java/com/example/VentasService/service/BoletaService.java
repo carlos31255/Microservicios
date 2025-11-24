@@ -95,7 +95,7 @@ public class BoletaService {
                     detalle.setBoletaId(boletaGuardada.getId());
                     detalle.setInventarioId(dto.getInventarioId());
                     detalle.setNombreProducto(dto.getNombreProducto());
-                    detalle.setTalla(dto.getTalla());
+                    detalle.setTallaId(dto.getTallaId());
                     detalle.setCantidad(dto.getCantidad());
                     detalle.setPrecioUnitario(dto.getPrecioUnitario());
                     return detalle;
@@ -195,7 +195,7 @@ public class BoletaService {
         dto.setBoletaId(detalle.getBoletaId());
         dto.setInventarioId(detalle.getInventarioId());
         dto.setNombreProducto(detalle.getNombreProducto());
-        dto.setTalla(detalle.getTalla());
+        dto.setTallaId(detalle.getTallaId());
         dto.setCantidad(detalle.getCantidad());
         dto.setPrecioUnitario(detalle.getPrecioUnitario());
         dto.setSubtotal(detalle.getSubtotal());

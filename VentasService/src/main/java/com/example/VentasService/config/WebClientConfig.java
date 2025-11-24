@@ -16,16 +16,14 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class WebClientConfig {
 
-    // Default builder (no timeouts) - still available if needed
     @Bean
     public WebClient.Builder webClientBuilder() {
         return WebClient.builder();
     }
 
-    // Default WebClient with reasonable timeouts applied via Reactor Netty
     @Bean
     public WebClient defaultWebClient(WebClient.Builder builder) {
-        // Connect timeout 2s, response timeout 5s
+        // tiempo de conexion 2s, tiempo de respuesta 5s
         TcpClient tcpClient = TcpClient.create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 2000)
                 .doOnConnected(conn -> conn

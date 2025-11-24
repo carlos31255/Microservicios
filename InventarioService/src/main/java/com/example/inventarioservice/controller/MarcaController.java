@@ -15,7 +15,7 @@ import com.example.inventarioservice.model.Marca;
 import com.example.inventarioservice.repository.MarcaRepository;
 
 @RestController
-@RequestMapping("/api/marcas")
+@RequestMapping("/inventario/marcas")
 public class MarcaController {
 
     private final MarcaRepository marcaRepository;

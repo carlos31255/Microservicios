@@ -102,7 +102,7 @@ public class BoletaControllerTest {
         detalle1.setId(1L);
         detalle1.setBoletaId(1L);
         detalle1.setNombreProducto("Zapatilla Nike");
-        detalle1.setTalla("42");
+        detalle1.setTallaId(42L);
         detalle1.setCantidad(2);
         detalle1.setPrecioUnitario(25000);
         detalle1.setSubtotal(50000);
@@ -112,7 +112,7 @@ public class BoletaControllerTest {
         mockMvc.perform(get("/api/ventas/boletas/1/detalles"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].nombreProducto").value("Zapatilla Nike"))
-                .andExpect(jsonPath("$[0].talla").value("42"))
+                .andExpect(jsonPath("$[0].tallaId").value(42))
                 .andExpect(jsonPath("$[0].cantidad").value(2))
                 .andExpect(jsonPath("$[0].subtotal").value(50000));
     }
@@ -138,7 +138,7 @@ public class BoletaControllerTest {
                         {
                             "inventarioId": 1,
                             "nombreProducto": "Zapatilla Nike",
-                            "talla": "42",
+                            "tallaId": 42,
                             "cantidad": 2,
                             "precioUnitario": 25000
                         }

@@ -76,7 +76,7 @@ public class BoletaServiceTest {
         detalleBoleta.setBoletaId(1L);
         detalleBoleta.setInventarioId(10L);
         detalleBoleta.setNombreProducto("Zapatilla Nike");
-        detalleBoleta.setTalla("42");
+        detalleBoleta.setTallaId(42L);
         detalleBoleta.setCantidad(2);
         detalleBoleta.setPrecioUnitario(25000);
         detalleBoleta.setSubtotal(50000);
@@ -151,7 +151,7 @@ public class BoletaServiceTest {
         detalle2.setId(2L);
         detalle2.setBoletaId(1L);
         detalle2.setNombreProducto("Zapatilla Adidas");
-        detalle2.setTalla("41");
+        detalle2.setTallaId(41L);
         detalle2.setCantidad(1);
         detalle2.setPrecioUnitario(30000);
         detalle2.setSubtotal(30000);
@@ -177,7 +177,7 @@ public class BoletaServiceTest {
         DetalleBoletaDTO detalleDTO = new DetalleBoletaDTO();
         detalleDTO.setInventarioId(10L);
         detalleDTO.setNombreProducto("Zapatilla Nike");
-        detalleDTO.setTalla("42");
+        detalleDTO.setTallaId(42L);
         detalleDTO.setCantidad(2);
         detalleDTO.setPrecioUnitario(25000);
 
