@@ -1,9 +1,9 @@
-package com.example.ventasservice.controller;
+package com.example.VentasService.controller;
 
-import com.example.ventasservice.dto.CartItemRequest;
-import com.example.ventasservice.dto.CartItemResponse;
-import com.example.ventasservice.model.CartItem;
-import com.example.ventasservice.service.CartService;
+import com.example.VentasService.dto.CartItemRequest;
+import com.example.VentasService.dto.CartItemResponse;
+import com.example.VentasService.model.CartItem;
+import com.example.VentasService.service.CartService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/carrito")
+@RequestMapping("/carrito")
 public class CartController {
 
     private final CartService cartService;
@@ -25,12 +25,11 @@ public class CartController {
         return cartService.getCartForCliente(clienteId).stream().map(this::toDto).toList();
     }
 
-    @PostMapping
-    public ResponseEntity<Long> addOrUpdate(@RequestBody CartItemRequest req,
+    @PostMapping()
+    public ResponseEntity<List<CartItemResponse>> addOrUpdate(@RequestBody CartItemRequest req,
                                             @RequestParam(required = false) Long clienteId) {
         CartItem item = new CartItem();
         item.setId(req.getId());
-        // Prefer explicit clienteId request param if provided; otherwise use body value
         if (req.getClienteId() != null) {
             item.setClienteId(req.getClienteId());
         } else if (clienteId != null) {
@@ -43,8 +42,18 @@ public class CartController {
         item.setCantidad(req.getCantidad());
         item.setPrecioUnitario(req.getPrecioUnitario());
         item.setNombreProducto(req.getNombreProducto());
-        Long id = cartService.addOrUpdate(item, req.getTalla());
-        return ResponseEntity.status(HttpStatus.CREATED).body(id);
+        cartService.addOrUpdate(item, req.getTalla());
+        List<CartItemResponse> updated = cartService.getCartForCliente(item.getClienteId()).stream().map(this::toDto).toList();
+        return ResponseEntity.status(HttpStatus.CREATED).body(updated);
+    }
+
+    @PostMapping("/{clienteId}")
+    public ResponseEntity<List<CartItemResponse>> addOrUpdateWithPath(@PathVariable Long clienteId,
+                                                                      @RequestBody CartItemRequest req) {
+        if (req.getClienteId() == null) {
+            req.setClienteId(clienteId);
+        }
+        return addOrUpdate(req, clienteId);
     }
 
     @GetMapping("/{clienteId}/count")
@@ -88,6 +97,7 @@ public class CartController {
         dto.setNombreProducto(item.getNombreProducto());
         dto.setFechaCreacion(item.getFechaCreacion());
         dto.setFechaActualizacion(item.getFechaActualizacion());
+        dto.setTalla(cartService.getTallaLabel(item.getTallaId()));
         return dto;
     }
 }

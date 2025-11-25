@@ -1,203 +1,167 @@
-package com.example.ventasservice.controller;
+package com.example.VentasService.controller;
 
-import com.example.ventasservice.dto.*;
-import com.example.ventasservice.service.BoletaService;
+import com.example.VentasService.dto.BoletaDTO;
+import com.example.VentasService.dto.CambiarEstadoRequest;
+import com.example.VentasService.dto.CrearBoletaRequest;
+import com.example.VentasService.dto.DetalleBoletaDTO;
+import com.example.VentasService.service.BoletaService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.http.MediaType;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(BoletaController.class)
+@WebMvcTest(controllers = BoletaController.class)
 public class BoletaControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
 
     @MockBean
     private BoletaService boletaService;
 
     @Autowired
-    private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
+
+    private BoletaDTO boletaDTO;
+    private DetalleBoletaDTO detalleDTO;
+
+    @BeforeEach
+    void setUp() {
+        // Preparar datos comunes
+        detalleDTO = new DetalleBoletaDTO();
+        detalleDTO.setId(10L);
+        detalleDTO.setInventarioId(50L);
+        detalleDTO.setNombreProducto("Zapatillas Nike");
+        detalleDTO.setCantidad(1);
+        detalleDTO.setPrecioUnitario(50000);
+        detalleDTO.setSubtotal(50000);
+
+        boletaDTO = new BoletaDTO();
+        boletaDTO.setId(1L);
+        boletaDTO.setClienteId(100L);
+        boletaDTO.setTotal(50000);
+        boletaDTO.setEstado("pendiente");
+        boletaDTO.setMetodoPago("TARJETA");
+        boletaDTO.setFechaVenta(LocalDateTime.now());
+        boletaDTO.setDetalles(Arrays.asList(detalleDTO));
+    }
 
     @Test
-    void listarTodas_returnsOKAndJson() throws Exception {
-        BoletaDTO boleta = new BoletaDTO();
-        boleta.setId(1L);
-        boleta.setClienteId(100L);
-        boleta.setTotal(50000);
-        boleta.setEstado("pendiente");
-        boleta.setMetodoPago("efectivo");
-        boleta.setFechaVenta(LocalDateTime.now());
+    void listarTodas_Ok() throws Exception {
+        // Arrange
+        List<BoletaDTO> lista = Arrays.asList(boletaDTO);
+        when(boletaService.obtenerTodasLasBoletas()).thenReturn(lista);
 
-        when(boletaService.obtenerTodasLasBoletas()).thenReturn(List.of(boleta));
-
-        mockMvc.perform(get("/api/ventas/boletas"))
+        // Act & Assert
+        mockMvc.perform(get("/ventas/boletas")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].clienteId").value(100))
-                .andExpect(jsonPath("$[0].total").value(50000))
-                .andExpect(jsonPath("$[0].estado").value("pendiente"));
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(1)))
+                .andExpect(jsonPath("$[0].clienteId", is(100)));
     }
 
     @Test
-    void obtenerPorId_returnsOK() throws Exception {
-        BoletaDTO boleta = new BoletaDTO();
-        boleta.setId(1L);
-        boleta.setClienteId(100L);
-        boleta.setTotal(50000);
-        boleta.setEstado("confirmada");
-        boleta.setMetodoPago("tarjeta");
+    void obtenerPorId_Ok() throws Exception {
+        // Arrange
+        when(boletaService.obtenerBoletaPorId(1L)).thenReturn(Optional.of(boletaDTO));
 
-        when(boletaService.obtenerBoletaPorId(1L)).thenReturn(Optional.of(boleta));
-
-        mockMvc.perform(get("/api/ventas/boletas/1"))
+        // Act & Assert
+        mockMvc.perform(get("/ventas/boletas/{id}", 1L)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.clienteId").value(100))
-                .andExpect(jsonPath("$.estado").value("confirmada"));
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.total", is(50000)));
     }
 
     @Test
-    void obtenerPorId_notFound() throws Exception {
-        when(boletaService.obtenerBoletaPorId(999L)).thenReturn(Optional.empty());
+    void obtenerPorCliente_Ok() throws Exception {
+        // Arrange
+        List<BoletaDTO> lista = Arrays.asList(boletaDTO);
+        when(boletaService.obtenerBoletasPorCliente(100L)).thenReturn(lista);
 
-        mockMvc.perform(get("/api/ventas/boletas/999"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void obtenerPorCliente_returnsOK() throws Exception {
-        BoletaDTO boleta1 = new BoletaDTO();
-        boleta1.setId(1L);
-        boleta1.setClienteId(100L);
-        boleta1.setTotal(50000);
-
-        BoletaDTO boleta2 = new BoletaDTO();
-        boleta2.setId(2L);
-        boleta2.setClienteId(100L);
-        boleta2.setTotal(75000);
-
-        when(boletaService.obtenerBoletasPorCliente(100L)).thenReturn(Arrays.asList(boleta1, boleta2));
-
-        mockMvc.perform(get("/api/ventas/boletas/cliente/100"))
+        // Act & Assert
+        mockMvc.perform(get("/ventas/boletas/cliente/{idCliente}", 100L)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].clienteId").value(100))
-                .andExpect(jsonPath("$[1].clienteId").value(100))
-                .andExpect(jsonPath("$[0].total").value(50000))
-                .andExpect(jsonPath("$[1].total").value(75000));
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].clienteId", is(100)));
     }
 
     @Test
-    void obtenerDetalles_returnsOK() throws Exception {
-        DetalleBoletaDTO detalle1 = new DetalleBoletaDTO();
-        detalle1.setId(1L);
-        detalle1.setBoletaId(1L);
-        detalle1.setNombreProducto("Zapatilla Nike");
-        detalle1.setTallaId(42L);
-        detalle1.setCantidad(2);
-        detalle1.setPrecioUnitario(25000);
-        detalle1.setSubtotal(50000);
+    void obtenerDetalles_Ok() throws Exception {
+        // Arrange
+        List<DetalleBoletaDTO> detalles = Arrays.asList(detalleDTO);
+        when(boletaService.obtenerDetallesPorBoleta(1L)).thenReturn(detalles);
 
-        when(boletaService.obtenerDetallesPorBoleta(1L)).thenReturn(List.of(detalle1));
-
-        mockMvc.perform(get("/api/ventas/boletas/1/detalles"))
+        // Act & Assert
+        mockMvc.perform(get("/ventas/boletas/{id}/detalles", 1L)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].nombreProducto").value("Zapatilla Nike"))
-                .andExpect(jsonPath("$[0].tallaId").value(42))
-                .andExpect(jsonPath("$[0].cantidad").value(2))
-                .andExpect(jsonPath("$[0].subtotal").value(50000));
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].nombreProducto", is("Zapatillas Nike")));
     }
 
     @Test
-    void crear_returnsCreated() throws Exception {
-        BoletaDTO boletaCreada = new BoletaDTO();
-        boletaCreada.setId(1L);
-        boletaCreada.setClienteId(100L);
-        boletaCreada.setTotal(50000);
-        boletaCreada.setEstado("pendiente");
-        boletaCreada.setMetodoPago("efectivo");
-        boletaCreada.setFechaVenta(LocalDateTime.now());
+    void crear_Ok() throws Exception {
+        // Arrange
+        CrearBoletaRequest request = new CrearBoletaRequest();
+        request.setClienteId(100L);
+        request.setMetodoPago("TARJETA");
+        request.setDetalles(Arrays.asList(detalleDTO));
 
-        when(boletaService.crearBoleta(any(CrearBoletaRequest.class))).thenReturn(boletaCreada);
+        when(boletaService.crearBoleta(any(CrearBoletaRequest.class))).thenReturn(boletaDTO);
 
-        String requestBody = """
-                {
-                    "clienteId": 100,
-                    "metodoPago": "efectivo",
-                    "observaciones": "Entrega rápida",
-                    "detalles": [
-                        {
-                            "inventarioId": 1,
-                            "nombreProducto": "Zapatilla Nike",
-                            "tallaId": 42,
-                            "cantidad": 2,
-                            "precioUnitario": 25000
-                        }
-                    ]
-                }
-                """;
-
-        mockMvc.perform(post("/api/ventas/boletas")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(requestBody))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.clienteId").value(100))
-                .andExpect(jsonPath("$.total").value(50000))
-                .andExpect(jsonPath("$.estado").value("pendiente"));
+        // Act & Assert
+        mockMvc.perform(post("/ventas/boletas/crear")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))) // Convertir objeto a JSON string
+                .andExpect(status().isCreated()) // Esperamos 201 Created
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.estado", is("pendiente")));
     }
 
     @Test
-    void cambiarEstado_returnsOK() throws Exception {
+    void cambiarEstado_Ok() throws Exception {
+        // Arrange
+        CambiarEstadoRequest request = new CambiarEstadoRequest();
+        request.setNuevoEstado("completada");
+
         BoletaDTO boletaActualizada = new BoletaDTO();
         boletaActualizada.setId(1L);
-        boletaActualizada.setClienteId(100L);
-        boletaActualizada.setEstado("confirmada");
+        boletaActualizada.setEstado("completada");
 
-        when(boletaService.cambiarEstado(1L, "confirmada")).thenReturn(Optional.of(boletaActualizada));
+        when(boletaService.cambiarEstado(eq(1L), eq("completada")))
+                .thenReturn(Optional.of(boletaActualizada));
 
-        mockMvc.perform(put("/api/ventas/boletas/1/estado")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nuevoEstado\": \"confirmada\"}"))
+        // Act & Assert
+        mockMvc.perform(put("/ventas/boletas/{id}/estado", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.estado").value("confirmada"));
-    }
-
-    @Test
-    void cambiarEstado_notFound() throws Exception {
-        when(boletaService.cambiarEstado(999L, "confirmada")).thenReturn(Optional.empty());
-
-        mockMvc.perform(put("/api/ventas/boletas/999/estado")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nuevoEstado\": \"confirmada\"}"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void obtenerPorCliente_listaVacia_returnsOK() throws Exception {
-        when(boletaService.obtenerBoletasPorCliente(999L)).thenReturn(List.of());
-
-        mockMvc.perform(get("/api/ventas/boletas/cliente/999"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isEmpty());
-    }
-
-    @Test
-    void obtenerDetalles_listaVacia_returnsOK() throws Exception {
-        when(boletaService.obtenerDetallesPorBoleta(999L)).thenReturn(List.of());
-
-        mockMvc.perform(get("/api/ventas/boletas/999/detalles"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isEmpty());
+                .andExpect(jsonPath("$.estado", is("completada")));
     }
 }

@@ -1,7 +1,7 @@
-package com.example.ventasservice.service;
+package com.example.VentasService.service;
 
-import com.example.ventasservice.model.CartItem;
-import com.example.ventasservice.repository.CartItemRepository;
+import com.example.VentasService.model.CartItem;
+import com.example.VentasService.repository.CartItemRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,8 +61,41 @@ public class CartService {
 
     public CartItem getItem(Long clienteId, Long modeloId, Long tallaId, String talla) {
         Long resolvedTallaId = resolveTallaId(tallaId, modeloId, talla);
-        if (resolvedTallaId == null) return null;
-        return cartItemRepository.findByClienteIdAndModeloIdAndTallaId(clienteId, modeloId, resolvedTallaId).orElse(null);
+        if (resolvedTallaId != null) {
+            return cartItemRepository.findByClienteIdAndModeloIdAndTallaId(clienteId, modeloId, resolvedTallaId).orElse(null);
+        }
+        return cartItemRepository.findByClienteIdAndModeloId(clienteId, modeloId).orElse(null);
+    }
+
+    // Return human readable talla label for a tallaId; empty string when unknown
+    public String getTallaLabel(Long tallaId) {
+        if (tallaId == null) return "";
+        try {
+            WebClient client = webClientBuilder.baseUrl(inventarioServiceUrl).build();
+            Map<String,Object>[] list = client.get()
+                    .uri("/inventario/tallas")
+                    .retrieve()
+                    .bodyToMono(Map[].class)
+                    .block(Duration.ofSeconds(5));
+
+            if (list != null) {
+                for (Map<String,Object> m : list) {
+                    Object idObj = m.get("id");
+                    Long id = null;
+                    if (idObj instanceof Number) id = ((Number) idObj).longValue();
+                    else {
+                        try { id = Long.valueOf(idObj.toString()); } catch (Exception e) { }
+                    }
+                    if (id != null && id.equals(tallaId)) {
+                        Object valor = m.get("valor");
+                        return valor != null ? valor.toString() : "";
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            // ignore and return empty string
+        }
+        return "";
     }
 
     private Long resolveTallaId(Long tallaId, Long modeloId, String talla) {
@@ -72,14 +105,14 @@ public class CartService {
         try {
             WebClient client = webClientBuilder.baseUrl(inventarioServiceUrl).build();
             // Call /inventario/tallas and find matching valor
-            Map[] list = client.get()
+            Map<String,Object>[] list = client.get()
                     .uri("/inventario/tallas")
                     .retrieve()
                     .bodyToMono(Map[].class)
                     .block(Duration.ofSeconds(5));
 
             if (list != null) {
-                for (Map m : list) {
+                for (Map<String,Object> m : list) {
                     Object valor = m.get("valor");
                     if (valor != null && talla.equalsIgnoreCase(valor.toString())) {
                         Object idObj = m.get("id");

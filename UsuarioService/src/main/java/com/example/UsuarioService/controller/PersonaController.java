@@ -11,12 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controlador REST para gestión de Personas.
- * Endpoints para CRUD y operaciones específicas de personas.
- */
+
 @RestController
-@RequestMapping("/api/personas")
+@RequestMapping("/personas")
 @CrossOrigin(origins = "*")
 @Tag(name = "Personas", description = "API para gestión de personas")
 public class PersonaController {

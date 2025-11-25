@@ -1,7 +1,7 @@
-package com.example.ventasservice.controller;
+package com.example.VentasService.controller;
 
-import com.example.ventasservice.dto.*;
-import com.example.ventasservice.service.BoletaService;
+import com.example.VentasService.dto.*;
+import com.example.VentasService.service.BoletaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/ventas/boletas")
+@RequestMapping("/ventas/boletas")
 @Tag(name = "Boletas", description = "Gestión de boletas de venta")
 public class BoletaController {
     
@@ -49,7 +49,7 @@ public class BoletaController {
         return ResponseEntity.ok(boletaService.obtenerDetallesPorBoleta(id));
     }
     
-    @PostMapping
+    @PostMapping("/crear")
     @Operation(summary = "Crear nueva venta",
                description = "Crea una nueva boleta con sus detalles de productos")
     public ResponseEntity<BoletaDTO> crear(@RequestBody CrearBoletaRequest request) {

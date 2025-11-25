@@ -68,7 +68,7 @@ public class InventarioService {
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
-
+    
     // Crear nuevo inventario
     public Inventario crearInventario(Inventario inventario) {
         // Verificar que no existe inventario para el mismo producto y talla

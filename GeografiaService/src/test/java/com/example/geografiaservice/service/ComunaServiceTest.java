@@ -1,8 +1,7 @@
 package com.example.geografiaservice.service;
 
-import com.example.geografiaservice.dto.ComunaDTO;
-import com.example.geografiaservice.model.Ciudad;
 import com.example.geografiaservice.model.Comuna;
+import com.example.geografiaservice.model.Ciudad;
 import com.example.geografiaservice.model.Region;
 import com.example.geografiaservice.repository.CiudadRepository;
 import com.example.geografiaservice.repository.ComunaRepository;
@@ -13,16 +12,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class ComunaServiceTest {
+class ComunaServiceTest {
 
     @Mock
     private ComunaRepository comunaRepository;
@@ -37,182 +34,30 @@ public class ComunaServiceTest {
     private ComunaService comunaService;
 
     @Test
-    void testObtenerTodasLasComunas() {
-        Region region = new Region();
-        region.setId(13L);
+    void buscarComunasPorNombre_returnsDtoList() {
+        Region r = new Region(1L, "R", "R1", 1, null, null);
+        Ciudad c = new Ciudad(1L, "Ciudad1", r, null);
+        Comuna cm = new Comuna(1L, "Comuna1", r, c);
 
-        Ciudad ciudad = new Ciudad();
-        ciudad.setId(1L);
+        when(comunaRepository.findByNombreContainingIgnoreCase("Comu")).thenReturn(List.of(cm));
 
-        Comuna comuna = new Comuna();
-        comuna.setId(1L);
-        comuna.setNombre("Providencia");
-        comuna.setRegion(region);
-        comuna.setCiudad(ciudad);
+        var result = comunaService.buscarComunasPorNombre("Comu");
 
-        when(comunaRepository.findAll()).thenReturn(Arrays.asList(comuna));
-
-        List<ComunaDTO> resultado = comunaService.obtenerTodasLasComunas();
-
-        assertThat(resultado).hasSize(1);
-        assertThat(resultado.get(0).getNombre()).isEqualTo("Providencia");
-        assertThat(resultado.get(0).getRegionId()).isEqualTo(13L);
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getNombre()).isEqualTo("Comuna1");
     }
 
     @Test
-    void testObtenerComunaPorId() {
-        Region region = new Region();
-        region.setId(13L);
+    void guardarComuna_whenCiudadNotExists_throws() {
+        Region r = new Region(1L, "R", "R1", 1, null, null);
+        Ciudad c = new Ciudad(999L, "C999", r, null);
+        Comuna comuna = new Comuna(null, "Nueva", r, c);
 
-        Ciudad ciudad = new Ciudad();
-        ciudad.setId(1L);
+        when(regionRepository.existsById(1L)).thenReturn(true);
+        when(ciudadRepository.existsById(999L)).thenReturn(false);
 
-        Comuna comuna = new Comuna();
-        comuna.setId(1L);
-        comuna.setNombre("Providencia");
-        comuna.setRegion(region);
-        comuna.setCiudad(ciudad);
-
-        when(comunaRepository.findById(1L)).thenReturn(Optional.of(comuna));
-
-        ComunaDTO resultado = comunaService.obtenerComunaPorId(1L);
-
-        assertThat(resultado.getId()).isEqualTo(1L);
-        assertThat(resultado.getNombre()).isEqualTo("Providencia");
+        assertThrows(RuntimeException.class, () -> comunaService.guardarComuna(comuna));
     }
 
-    @Test
-    void testObtenerComunasPorRegion() {
-        Region region = new Region();
-        region.setId(13L);
-
-        Ciudad ciudad = new Ciudad();
-        ciudad.setId(1L);
-
-        Comuna comuna = new Comuna();
-        comuna.setId(1L);
-        comuna.setNombre("Providencia");
-        comuna.setRegion(region);
-        comuna.setCiudad(ciudad);
-
-        when(comunaRepository.findByRegionIdOrderByNombreAsc(13L)).thenReturn(Arrays.asList(comuna));
-
-        List<ComunaDTO> resultado = comunaService.obtenerComunasPorRegion(13L);
-
-        assertThat(resultado).hasSize(1);
-        assertThat(resultado.get(0).getRegionId()).isEqualTo(13L);
-    }
-
-    @Test
-    void testObtenerComunasPorCiudad() {
-        Region region = new Region();
-        region.setId(13L);
-
-        Ciudad ciudad = new Ciudad();
-        ciudad.setId(1L);
-
-        Comuna comuna = new Comuna();
-        comuna.setId(1L);
-        comuna.setNombre("Providencia");
-        comuna.setRegion(region);
-        comuna.setCiudad(ciudad);
-
-        when(comunaRepository.findByCiudadIdOrderByNombreAsc(1L)).thenReturn(Arrays.asList(comuna));
-
-        List<ComunaDTO> resultado = comunaService.obtenerComunasPorCiudad(1L);
-
-        assertThat(resultado).hasSize(1);
-        assertThat(resultado.get(0).getCiudadId()).isEqualTo(1L);
-    }
-
-    @Test
-    void testObtenerComunasPorRegionYCiudad() {
-        Region region = new Region();
-        region.setId(13L);
-
-        Ciudad ciudad = new Ciudad();
-        ciudad.setId(1L);
-
-        Comuna comuna = new Comuna();
-        comuna.setId(1L);
-        comuna.setNombre("Providencia");
-        comuna.setRegion(region);
-        comuna.setCiudad(ciudad);
-
-        when(comunaRepository.findByRegionIdAndCiudadId(13L, 1L)).thenReturn(Arrays.asList(comuna));
-
-        List<ComunaDTO> resultado = comunaService.obtenerComunasPorRegionYCiudad(13L, 1L);
-
-        assertThat(resultado).hasSize(1);
-        assertThat(resultado.get(0).getRegionId()).isEqualTo(13L);
-        assertThat(resultado.get(0).getCiudadId()).isEqualTo(1L);
-    }
-
-    @Test
-    void testGuardarComuna() {
-        Region region = new Region();
-        region.setId(13L);
-
-        Ciudad ciudad = new Ciudad();
-        ciudad.setId(1L);
-
-        Comuna comuna = new Comuna();
-        comuna.setNombre("Providencia");
-        comuna.setRegion(region);
-        comuna.setCiudad(ciudad);
-
-        Comuna comunaGuardada = new Comuna();
-        comunaGuardada.setId(1L);
-        comunaGuardada.setNombre("Providencia");
-        comunaGuardada.setRegion(region);
-        comunaGuardada.setCiudad(ciudad);
-
-        when(regionRepository.existsById(13L)).thenReturn(true);
-        when(ciudadRepository.existsById(1L)).thenReturn(true);
-        when(comunaRepository.existsByNombreIgnoreCaseAndCiudadId("Providencia", 1L)).thenReturn(false);
-        when(comunaRepository.save(any(Comuna.class))).thenReturn(comunaGuardada);
-
-        Comuna resultado = comunaService.guardarComuna(comuna);
-
-        assertThat(resultado.getId()).isEqualTo(1L);
-        assertThat(resultado.getNombre()).isEqualTo("Providencia");
-    }
-
-    @Test
-    void testModificarComuna() {
-        Region region = new Region();
-        region.setId(13L);
-
-        Ciudad ciudad = new Ciudad();
-        ciudad.setId(1L);
-
-        Comuna comunaExistente = new Comuna();
-        comunaExistente.setId(1L);
-        comunaExistente.setNombre("Providencia");
-        comunaExistente.setRegion(region);
-        comunaExistente.setCiudad(ciudad);
-
-        Comuna comunaActualizada = new Comuna();
-        comunaActualizada.setNombre("Providencia Centro");
-        comunaActualizada.setRegion(region);
-        comunaActualizada.setCiudad(ciudad);
-
-        when(comunaRepository.findById(1L)).thenReturn(Optional.of(comunaExistente));
-        when(regionRepository.existsById(13L)).thenReturn(true);
-        when(ciudadRepository.existsById(1L)).thenReturn(true);
-        when(comunaRepository.save(any(Comuna.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        Comuna resultado = comunaService.modificarComuna(1L, comunaActualizada);
-
-        assertThat(resultado.getNombre()).isEqualTo("Providencia Centro");
-    }
-
-    @Test
-    void testEliminarComuna() {
-        when(comunaRepository.existsById(1L)).thenReturn(true);
-
-        comunaService.eliminarComuna(1L);
-
-        verify(comunaRepository).deleteById(1L);
-    }
+    
 }

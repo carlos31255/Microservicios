@@ -38,7 +38,7 @@ public class EntregaControllerTest {
 
         when(entregaService.obtenerTodasLasEntregas()).thenReturn(List.of(entrega));
 
-        mockMvc.perform(get("/api/entregas"))
+        mockMvc.perform(get("/entregas"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].idEntrega").value(1))
                 .andExpect(jsonPath("$[0].idBoleta").value(100))
@@ -58,7 +58,7 @@ public class EntregaControllerTest {
 
         when(entregaService.obtenerEntregaPorId(1L)).thenReturn(entrega);
 
-        mockMvc.perform(get("/api/entregas/1"))
+        mockMvc.perform(get("/entregas/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idEntrega").value(1))
                 .andExpect(jsonPath("$.estadoEntrega").value("EN_CAMINO"))
@@ -79,7 +79,7 @@ public class EntregaControllerTest {
 
         when(entregaService.getEntregasByTransportista(5L)).thenReturn(List.of(entrega1, entrega2));
 
-        mockMvc.perform(get("/api/entregas/transportista/5"))
+        mockMvc.perform(get("/entregas/transportista/5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].idTransportista").value(5))
                 .andExpect(jsonPath("$[1].idTransportista").value(5))
@@ -101,7 +101,7 @@ public class EntregaControllerTest {
 
         when(entregaService.getEntregasByEstado("ENTREGADO")).thenReturn(List.of(entrega1, entrega2));
 
-        mockMvc.perform(get("/api/entregas/estado/ENTREGADO"))
+        mockMvc.perform(get("/entregas/estado/ENTREGADO"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].estadoEntrega").value("ENTREGADO"))
                 .andExpect(jsonPath("$[1].estadoEntrega").value("ENTREGADO"));
@@ -118,7 +118,7 @@ public class EntregaControllerTest {
 
         when(entregaService.asignarTransportista(1L, 5L)).thenReturn(entrega);
 
-        mockMvc.perform(put("/api/entregas/1/asignar")
+        mockMvc.perform(put("/entregas/1/asignar")
                         .param("transportistaId", "5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idEntrega").value(1))
@@ -136,7 +136,7 @@ public class EntregaControllerTest {
 
         when(entregaService.completarEntrega(eq(1L), anyString())).thenReturn(entrega);
 
-        mockMvc.perform(put("/api/entregas/1/completar")
+        mockMvc.perform(put("/entregas/1/completar")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("\"Entrega realizada sin problemas\""))
                 .andExpect(status().isOk())
@@ -154,7 +154,7 @@ public class EntregaControllerTest {
 
         when(entregaService.completarEntrega(eq(1L), isNull())).thenReturn(entrega);
 
-        mockMvc.perform(put("/api/entregas/1/completar"))
+        mockMvc.perform(put("/entregas/1/completar"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idEntrega").value(1))
                 .andExpect(jsonPath("$.estadoEntrega").value("ENTREGADO"));
@@ -168,7 +168,7 @@ public class EntregaControllerTest {
 
         when(entregaService.cambiarEstado(1L, "EN_CAMINO")).thenReturn(entrega);
 
-        mockMvc.perform(put("/api/entregas/1/estado")
+        mockMvc.perform(put("/entregas/1/estado")
                         .param("nuevoEstado", "EN_CAMINO"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idEntrega").value(1))
@@ -184,7 +184,7 @@ public class EntregaControllerTest {
 
         when(entregaService.getEntregasByEstado("PENDIENTE")).thenReturn(List.of(entrega));
 
-        mockMvc.perform(get("/api/entregas/estado/PENDIENTE"))
+        mockMvc.perform(get("/entregas/estado/PENDIENTE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].idEntrega").value(3))
                 .andExpect(jsonPath("$[0].estadoEntrega").value("PENDIENTE"))
@@ -195,7 +195,7 @@ public class EntregaControllerTest {
     void listarPorTransportista_sinEntregas_returnsEmptyList() throws Exception {
         when(entregaService.getEntregasByTransportista(99L)).thenReturn(List.of());
 
-        mockMvc.perform(get("/api/entregas/transportista/99"))
+        mockMvc.perform(get("/entregas/transportista/99"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }

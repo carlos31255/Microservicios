@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,8 +46,38 @@ public class ProductoController {
 
     @PostMapping("/crear")
     public ResponseEntity<Producto> create(@RequestBody Producto producto) {
-        Producto saved = productoRepository.save(producto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        return saveProductoSafe(producto);
+    }
+
+    // endpoint para crear producto con imagen
+    @PostMapping(value = "/crear", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Producto> createWithImage(
+            @RequestPart("producto") Producto producto,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
+        if (producto.getId() != null && producto.getId() <= 0) producto.setId(null);
+
+        if (imagen != null && !imagen.isEmpty()) {
+            try {
+                producto.setImagen(imagen.getBytes());
+                String original = imagen.getOriginalFilename();
+                if (original != null && !original.isBlank()) {
+                    producto.setImagenUrl("/images/" + original);
+                }
+            } catch (java.io.IOException ioe) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+
+        return saveProductoSafe(producto);
+    }
+
+    private ResponseEntity<Producto> saveProductoSafe(Producto producto) {
+        try {
+            Producto saved = productoRepository.save(producto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+        } catch (org.springframework.orm.ObjectOptimisticLockingFailureException | org.hibernate.StaleObjectStateException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
     }
 
     // Servir imagenes si es necesario

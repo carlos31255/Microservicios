@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/geografia/ciudades")
+@RequestMapping("/geografia/ciudades")
 // para permitir solicitudes desde cualquier origen
 // * se usa en desarrollo, en producción se debe restringir a dominios específicos
 @CrossOrigin(origins = "*") 

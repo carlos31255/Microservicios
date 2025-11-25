@@ -36,7 +36,7 @@ public class UsuarioControllerTest {
 
         when(usuarioService.obtenerTodosLosUsuarios()).thenReturn(List.of(usuario));
 
-        mockMvc.perform(get("/api/usuarios"))
+        mockMvc.perform(get("/usuarios"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].idPersona").value(1))
                 .andExpect(jsonPath("$[0].nombreCompleto").value("Juan Pérez"))
@@ -51,7 +51,7 @@ public class UsuarioControllerTest {
 
         when(usuarioService.obtenerUsuarioPorId(1L)).thenReturn(usuario);
 
-        mockMvc.perform(get("/api/usuarios/1"))
+        mockMvc.perform(get("/usuarios/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idPersona").value(1))
                 .andExpect(jsonPath("$.nombreCompleto").value("Juan Pérez"));
@@ -66,7 +66,7 @@ public class UsuarioControllerTest {
 
         when(usuarioService.crearUsuario(any(UsuarioDTO.class))).thenReturn(usuario);
 
-        mockMvc.perform(post("/api/usuarios")
+        mockMvc.perform(post("/usuarios")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"idPersona\": 1, \"idRol\": 2}"))
                 .andExpect(status().isCreated())
@@ -83,7 +83,7 @@ public class UsuarioControllerTest {
 
         when(usuarioService.actualizarRolUsuario(eq(1L), eq(3L))).thenReturn(usuarioActualizado);
 
-        mockMvc.perform(put("/api/usuarios/1/rol")
+        mockMvc.perform(put("/usuarios/1/rol")
                         .param("nuevoIdRol", "3"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idRol").value(3))
@@ -94,7 +94,7 @@ public class UsuarioControllerTest {
     void eliminarUsuario_returnsNoContent() throws Exception {
         when(usuarioService.eliminarUsuario(1L)).thenReturn(true);
 
-        mockMvc.perform(delete("/api/usuarios/1"))
+        mockMvc.perform(delete("/usuarios/1"))
                 .andExpect(status().isNoContent());
     }
 
@@ -107,7 +107,7 @@ public class UsuarioControllerTest {
 
         when(usuarioService.obtenerUsuariosPorRol(1L)).thenReturn(List.of(usuario));
 
-        mockMvc.perform(get("/api/usuarios/rol/1"))
+        mockMvc.perform(get("/usuarios/rol/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].nombreRol").value("Administrador"));
     }

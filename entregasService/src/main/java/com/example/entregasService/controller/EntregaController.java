@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/entregas")
+@RequestMapping("/entregas")
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Entregas", description = "API para gestión de entregas")

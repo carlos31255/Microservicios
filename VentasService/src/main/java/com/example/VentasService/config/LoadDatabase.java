@@ -1,9 +1,9 @@
-package com.example.ventasservice.config;
+package com.example.VentasService.config;
 
-import com.example.ventasservice.model.Boleta;
-import com.example.ventasservice.model.DetalleBoleta;
-import com.example.ventasservice.repository.BoletaRepository;
-import com.example.ventasservice.repository.DetalleBoletaRepository;
+import com.example.VentasService.model.Boleta;
+import com.example.VentasService.model.DetalleBoleta;
+import com.example.VentasService.repository.BoletaRepository;
+import com.example.VentasService.repository.DetalleBoletaRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -15,10 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Configuración para precargar datos iniciales de ventas en la base de datos.
- * Crea boletas de ejemplo enlazadas a clientes del UsuarioService.
- */
+
 @Configuration
 public class LoadDatabase {
 
@@ -29,6 +26,11 @@ public class LoadDatabase {
     CommandLineRunner initDatabase(
             BoletaRepository boletaRepository,
             DetalleBoletaRepository detalleBoletaRepository) {
+
+        // WebClient builder and InventarioService URL could be read from properties if needed.
+        org.springframework.web.reactive.function.client.WebClient.Builder webClientBuilder =
+            org.springframework.web.reactive.function.client.WebClient.builder();
+        String inventarioServiceUrl = System.getProperty("services.inventario.url", "http://localhost:8082");
 
         return args -> {
             log.info("=== Iniciando precarga de datos de ventas ===");
@@ -99,6 +101,26 @@ public class LoadDatabase {
                     String talla = tallas[random.nextInt(tallas.length)];
                     Integer cantidad = 1 + random.nextInt(3); // 1-3 unidades
                     Integer precioUnitario = 25000 + (random.nextInt(76) * 1000); // 25.000 - 100.000
+                    // Verify that the inventario item exists in InventarioService before adding.
+                    boolean existeInventario = true;
+                    try {
+                        org.springframework.web.reactive.function.client.WebClient client =
+                                webClientBuilder.baseUrl(inventarioServiceUrl).build();
+                        client.get()
+                            .uri("/inventario/{id}", inventarioId)
+                                .retrieve()
+                                .bodyToMono(String.class)
+                                .block(java.time.Duration.ofSeconds(3));
+                    } catch (Exception ex) {
+                        existeInventario = false;
+                        log.warn("Inventario id {} no existe o InventarioService no está disponible, omitiendo producto: {}", inventarioId, producto);
+                    }
+
+                    if (!existeInventario) {
+                        continue; // skip this product
+                    }
+
+                    // proceed to create detalle
 
                     DetalleBoleta detalle = new DetalleBoleta();
                     detalle.setBoletaId(boletaGuardada.getId());

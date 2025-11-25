@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/reportes")
+@RequestMapping("/reportes")
 @Tag(name = "Reportes", description = "Endpoints para estadísticas y reportes del sistema de usuarios")
 public class ReporteController {
 

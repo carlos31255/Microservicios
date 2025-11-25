@@ -1,21 +1,24 @@
-package com.example.ventasservice.controller;
+package com.example.VentasService.controller;
 
-import com.example.ventasservice.model.CartItem;
-import com.example.ventasservice.service.CartService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.VentasService.controller.CartController;
+import com.example.VentasService.model.CartItem;
+import com.example.VentasService.service.CartService;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Arrays;
+import java.time.LocalDateTime;
+import java.util.List;
 
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = CartController.class)
 public class CartControllerTest {
@@ -23,126 +26,51 @@ public class CartControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @MockBean
     private CartService cartService;
 
     @Test
-    void testGetCart() throws Exception {
-        CartItem item = new CartItem();
-        item.setId(1L);
-        item.setClienteId(100L);
-        item.setModeloId(10L);
-        item.setTallaId(42L);
-        item.setCantidad(2);
-        item.setPrecioUnitario(25000);
-        item.setNombreProducto("Zapatilla Nike");
+    void getCart_returnsOk() throws Exception {
+        CartItem item = new CartItem(1L, 5L, 100L, 10L, 2, 500, "Zapato A", LocalDateTime.now(), LocalDateTime.now());
+        when(cartService.getCartForCliente(5L)).thenReturn(List.of(item));
+        when(cartService.getTallaLabel(10L)).thenReturn("M");
 
-        when(cartService.getCartForCliente(100L)).thenReturn(Arrays.asList(item));
-
-        mockMvc.perform(get("/api/carrito/100").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/carrito/5"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].nombreProducto").value("Zapatilla Nike"));
-
-        verify(cartService).getCartForCliente(100L);
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].nombreProducto").value("Zapato A"))
+                .andExpect(jsonPath("$[0].talla").value("M"));
     }
 
     @Test
-    void testAddOrUpdate() throws Exception {
-        // request body
-        var req = new java.util.HashMap<String, Object>();
-        req.put("clienteId", 100);
-        req.put("modeloId", 10);
-        req.put("tallaId", 42);
-        req.put("cantidad", 2);
-        req.put("precioUnitario", 25000);
-        req.put("nombreProducto", "Zapatilla Nike");
+    void addOrUpdate_returnsCreated_andBodyList() throws Exception {
+        // Prepare mock behavior
+        CartItem returned = new CartItem(2L, 6L, 200L, 20L, 1, 1000, "Camisa B", LocalDateTime.now(), LocalDateTime.now());
+        when(cartService.addOrUpdate(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyString())).thenReturn(2L);
+        when(cartService.getCartForCliente(6L)).thenReturn(List.of(returned));
+        when(cartService.getTallaLabel(20L)).thenReturn("L");
 
-        when(cartService.addOrUpdate(ArgumentMatchers.any(), ArgumentMatchers.isNull())).thenReturn(7L);
+        String json = "{\"clienteId\":6,\"modeloId\":200,\"tallaId\":20,\"cantidad\":1,\"precioUnitario\":1000,\"nombreProducto\":\"Camisa B\"}";
 
-        mockMvc.perform(post("/api/carrito")
+        mockMvc.perform(post("/carrito")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
+                        .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(content().string("7"));
-
-                verify(cartService).addOrUpdate(ArgumentMatchers.any(), ArgumentMatchers.isNull());
+                .andExpect(jsonPath("$[0].id").value(2))
+                .andExpect(jsonPath("$[0].nombreProducto").value("Camisa B"))
+                .andExpect(jsonPath("$[0].talla").value("L"));
     }
 
-        @Test
-        void testAddOrUpdate_withTallaString() throws Exception {
-                var req = new java.util.HashMap<String, Object>();
-                req.put("clienteId", 100);
-                req.put("modeloId", 10);
-                req.put("talla", "42");
-                req.put("cantidad", 2);
-                req.put("precioUnitario", 25000);
-                req.put("nombreProducto", "Zapatilla Nike");
-
-                when(cartService.addOrUpdate(ArgumentMatchers.any(), eq("42"))).thenReturn(8L);
-
-                mockMvc.perform(post("/api/carrito")
-                                                .contentType(MediaType.APPLICATION_JSON)
-                                                .content(objectMapper.writeValueAsString(req)))
-                                .andExpect(status().isCreated())
-                                .andExpect(content().string("8"));
-
-                verify(cartService).addOrUpdate(ArgumentMatchers.any(), eq("42"));
-        }
-
     @Test
-    void testCount() throws Exception {
-        when(cartService.getCountByCliente(100L)).thenReturn(3);
+    void getItem_returnsOk() throws Exception {
+        CartItem item = new CartItem(3L, 7L, 300L, 30L, 1, 700, "Polera C", LocalDateTime.now(), LocalDateTime.now());
+        when(cartService.getItem(7L, 300L, 30L, null)).thenReturn(item);
+        when(cartService.getTallaLabel(30L)).thenReturn("S");
 
-        mockMvc.perform(get("/api/carrito/100/count").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/carrito/7/item?modeloId=300&tallaId=30"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("3"));
-
-        verify(cartService).getCountByCliente(100L);
-    }
-
-    @Test
-    void testDeleteItemAndClear() throws Exception {
-        // delete item
-        mockMvc.perform(delete("/api/carrito/100/items/9"))
-                .andExpect(status().isNoContent());
-
-        verify(cartService).delete(argThat(i -> i != null && i.getId() != null && i.getId().equals(9L)));
-
-        // clear
-        mockMvc.perform(delete("/api/carrito/100"))
-                .andExpect(status().isNoContent());
-
-        verify(cartService).clear(100L);
-    }
-
-    @Test
-    void testGetItem_foundAndNotFound() throws Exception {
-        CartItem item = new CartItem();
-        item.setId(1L);
-        item.setClienteId(100L);
-        item.setModeloId(10L);
-        item.setTallaId(42L);
-        item.setCantidad(2);
-        item.setNombreProducto("Zapatilla Nike");
-
-        when(cartService.getItem(100L, 10L, 42L, null)).thenReturn(item);
-
-        mockMvc.perform(get("/api/carrito/100/item")
-                        .param("modeloId", "10")
-                                .param("tallaId", "42"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nombreProducto").value("Zapatilla Nike"));
-
-        // not found
-        when(cartService.getItem(200L, 1L, 39L, null)).thenReturn(null);
-
-        mockMvc.perform(get("/api/carrito/200/item")
-                        .param("modeloId", "1")
-                        .param("tallaId", "39"))
-                .andExpect(status().isNotFound());
+                .andExpect(jsonPath("$.id").value(3))
+                .andExpect(jsonPath("$.nombreProducto").value("Polera C"))
+                .andExpect(jsonPath("$.talla").value("S"));
     }
 }

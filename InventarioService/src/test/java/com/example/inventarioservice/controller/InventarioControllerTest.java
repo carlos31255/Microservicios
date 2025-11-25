@@ -39,7 +39,7 @@ public class InventarioControllerTest {
 
         when(inventarioService.obtenerTodoElInventario()).thenReturn(List.of(inventario));
 
-        mockMvc.perform(get("/api/inventario"))
+        mockMvc.perform(get("/inventario"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].nombre").value("Zapatilla Nike"))
@@ -55,7 +55,7 @@ public class InventarioControllerTest {
 
         when(inventarioService.obtenerInventarioPorId(1L)).thenReturn(inventario);
 
-        mockMvc.perform(get("/api/inventario/1"))
+        mockMvc.perform(get("/inventario/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.nombre").value("Zapatilla Nike"));
@@ -71,7 +71,7 @@ public class InventarioControllerTest {
 
         when(inventarioService.obtenerInventarioPorProductoId(100L)).thenReturn(List.of(inventario));
 
-        mockMvc.perform(get("/api/inventario/producto/100"))
+        mockMvc.perform(get("/inventario/producto/100"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].productoId").value(100))
                 .andExpect(jsonPath("$[0].talla").value("42"));
@@ -87,7 +87,7 @@ public class InventarioControllerTest {
 
         when(inventarioService.obtenerInventarioPorProductoIdYTalla(100L, "42")).thenReturn(inventario);
 
-        mockMvc.perform(get("/api/inventario/producto/100/talla/42"))
+        mockMvc.perform(get("/inventario/producto/100/talla/42"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.productoId").value(100))
                 .andExpect(jsonPath("$.talla").value("42"));
@@ -103,7 +103,7 @@ public class InventarioControllerTest {
 
         when(inventarioService.obtenerProductosConStockBajo()).thenReturn(List.of(inventario));
 
-        mockMvc.perform(get("/api/inventario/stock-bajo"))
+        mockMvc.perform(get("/inventario/stock-bajo"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].cantidad").value(5))
                 .andExpect(jsonPath("$[0].stockMinimo").value(10));
@@ -117,7 +117,7 @@ public class InventarioControllerTest {
 
         when(inventarioService.buscarProductosPorNombre("Nike")).thenReturn(List.of(inventario));
 
-        mockMvc.perform(get("/api/inventario/buscar")
+        mockMvc.perform(get("/inventario/buscar")
                         .param("nombre", "Nike"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].nombre").value("Zapatilla Nike"));
@@ -135,7 +135,7 @@ public class InventarioControllerTest {
 
         when(inventarioService.crearInventario(any(Inventario.class))).thenReturn(inventario);
 
-        mockMvc.perform(post("/api/inventario/crear")
+        mockMvc.perform(post("/inventario/crear")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"productoId\": 100, \"nombre\": \"Zapatilla Nike\", \"talla\": \"42\", \"cantidad\": 50, \"stockMinimo\": 10}"))
                 .andExpect(status().isCreated())
@@ -152,7 +152,7 @@ public class InventarioControllerTest {
 
         when(inventarioService.actualizarInventario(eq(1L), any(Inventario.class))).thenReturn(inventario);
 
-        mockMvc.perform(put("/api/inventario/1")
+        mockMvc.perform(put("/inventario/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nombre\": \"Zapatilla Nike Actualizada\", \"cantidad\": 60}"))
                 .andExpect(status().isOk())
@@ -164,7 +164,7 @@ public class InventarioControllerTest {
     void verificarDisponibilidad_returnsOK() throws Exception {
         when(inventarioService.verificarDisponibilidad(100L, "42", 10)).thenReturn(true);
 
-        mockMvc.perform(get("/api/inventario/verificar-disponibilidad")
+        mockMvc.perform(get("/inventario/verificar-disponibilidad")
                         .param("productoId", "100")
                         .param("talla", "42")
                         .param("cantidad", "10"))
@@ -176,7 +176,7 @@ public class InventarioControllerTest {
     void eliminarInventario_returnsNoContent() throws Exception {
         doNothing().when(inventarioService).eliminarInventario(1L);
 
-        mockMvc.perform(delete("/api/inventario/eliminar/1"))
+        mockMvc.perform(delete("/inventario/eliminar/1"))
                 .andExpect(status().isNoContent());
     }
 }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/transportistas")
+@RequestMapping("/transportistas")
 @CrossOrigin(origins = "*")
 @Tag(name = "Transportistas", description = "API para gestión de transportistas")
 public class TransportistaController {

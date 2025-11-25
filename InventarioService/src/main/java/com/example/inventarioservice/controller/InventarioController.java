@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/inventario")
+@RequestMapping("/inventario")
 @CrossOrigin(origins = "*")
 public class InventarioController {
 
@@ -45,6 +45,7 @@ public class InventarioController {
         }
     }
 
+    
     // Obtener inventario por productoId (todas las tallas)
     @GetMapping("/producto/{productoId}")
     public ResponseEntity<List<InventarioDTO>> obtenerInventarioPorProductoId(@PathVariable Long productoId) {

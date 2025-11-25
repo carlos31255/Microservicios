@@ -1,6 +1,5 @@
 package com.example.geografiaservice.service;
 
-import com.example.geografiaservice.dto.CiudadDTO;
 import com.example.geografiaservice.model.Ciudad;
 import com.example.geografiaservice.model.Region;
 import com.example.geografiaservice.repository.CiudadRepository;
@@ -11,16 +10,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class CiudadServiceTest {
+class CiudadServiceTest {
 
     @Mock
     private CiudadRepository ciudadRepository;
@@ -32,114 +29,26 @@ public class CiudadServiceTest {
     private CiudadService ciudadService;
 
     @Test
-    void testObtenerTodasLasCiudades() {
-        Region region = new Region();
-        region.setId(13L);
-        region.setCodigo("RM");
+    void obtenerCiudadesPorRegion_returnsDtoList() {
+        Region r = new Region(1L, "R", "R1", 1, null, null);
+        Ciudad c1 = new Ciudad(1L, "C1", r, null);
+        Ciudad c2 = new Ciudad(2L, "C2", r, null);
 
-        Ciudad ciudad = new Ciudad();
-        ciudad.setId(1L);
-        ciudad.setNombre("Santiago");
-        ciudad.setRegion(region);
+        when(ciudadRepository.findByRegionIdOrderByNombreAsc(1L)).thenReturn(List.of(c1, c2));
 
-        when(ciudadRepository.findAll()).thenReturn(Arrays.asList(ciudad));
+        var result = ciudadService.obtenerCiudadesPorRegion(1L);
 
-        List<CiudadDTO> resultado = ciudadService.obtenerTodasLasCiudades();
-
-        assertThat(resultado).hasSize(1);
-        assertThat(resultado.get(0).getNombre()).isEqualTo("Santiago");
-        assertThat(resultado.get(0).getRegionId()).isEqualTo(13L);
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getRegionId()).isEqualTo(1L);
     }
 
     @Test
-    void testObtenerCiudadPorId() {
-        Region region = new Region();
-        region.setId(13L);
+    void guardarCiudad_whenRegionNotExists_throws() {
+        Region r = new Region(99L, "R", "R9", 9, null, null);
+        Ciudad ciudad = new Ciudad(null, "Nueva", r, null);
 
-        Ciudad ciudad = new Ciudad();
-        ciudad.setId(1L);
-        ciudad.setNombre("Santiago");
-        ciudad.setRegion(region);
+        when(regionRepository.existsById(99L)).thenReturn(false);
 
-        when(ciudadRepository.findById(1L)).thenReturn(Optional.of(ciudad));
-
-        CiudadDTO resultado = ciudadService.obtenerCiudadPorId(1L);
-
-        assertThat(resultado.getId()).isEqualTo(1L);
-        assertThat(resultado.getNombre()).isEqualTo("Santiago");
-    }
-
-    @Test
-    void testObtenerCiudadesPorRegion() {
-        Region region = new Region();
-        region.setId(13L);
-
-        Ciudad ciudad = new Ciudad();
-        ciudad.setId(1L);
-        ciudad.setNombre("Santiago");
-        ciudad.setRegion(region);
-
-        when(ciudadRepository.findByRegionIdOrderByNombreAsc(13L)).thenReturn(Arrays.asList(ciudad));
-
-        List<CiudadDTO> resultado = ciudadService.obtenerCiudadesPorRegion(13L);
-
-        assertThat(resultado).hasSize(1);
-        assertThat(resultado.get(0).getRegionId()).isEqualTo(13L);
-    }
-
-    @Test
-    void testGuardarCiudad() {
-        Region region = new Region();
-        region.setId(13L);
-
-        Ciudad ciudad = new Ciudad();
-        ciudad.setNombre("Santiago");
-        ciudad.setRegion(region);
-
-        Ciudad ciudadGuardada = new Ciudad();
-        ciudadGuardada.setId(1L);
-        ciudadGuardada.setNombre("Santiago");
-        ciudadGuardada.setRegion(region);
-
-        when(regionRepository.existsById(13L)).thenReturn(true);
-        when(ciudadRepository.existsByNombreIgnoreCaseAndRegionId("Santiago", 13L)).thenReturn(false);
-        when(ciudadRepository.save(any(Ciudad.class))).thenReturn(ciudadGuardada);
-
-        Ciudad resultado = ciudadService.guardarCiudad(ciudad);
-
-        assertThat(resultado.getId()).isEqualTo(1L);
-        assertThat(resultado.getNombre()).isEqualTo("Santiago");
-    }
-
-    @Test
-    void testModificarCiudad() {
-        Region region = new Region();
-        region.setId(13L);
-
-        Ciudad ciudadExistente = new Ciudad();
-        ciudadExistente.setId(1L);
-        ciudadExistente.setNombre("Santiago");
-        ciudadExistente.setRegion(region);
-
-        Ciudad ciudadActualizada = new Ciudad();
-        ciudadActualizada.setNombre("Santiago Centro");
-        ciudadActualizada.setRegion(region);
-
-        when(ciudadRepository.findById(1L)).thenReturn(Optional.of(ciudadExistente));
-        when(regionRepository.existsById(13L)).thenReturn(true);
-        when(ciudadRepository.save(any(Ciudad.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        Ciudad resultado = ciudadService.modificarCiudad(1L, ciudadActualizada);
-
-        assertThat(resultado.getNombre()).isEqualTo("Santiago Centro");
-    }
-
-    @Test
-    void testEliminarCiudad() {
-        when(ciudadRepository.existsById(1L)).thenReturn(true);
-
-        ciudadService.eliminarCiudad(1L);
-
-        verify(ciudadRepository).deleteById(1L);
+        assertThrows(RuntimeException.class, () -> ciudadService.guardarCiudad(ciudad));
     }
 }

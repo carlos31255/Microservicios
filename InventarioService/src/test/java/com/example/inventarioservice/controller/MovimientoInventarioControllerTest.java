@@ -35,7 +35,7 @@ public class MovimientoInventarioControllerTest {
 
         when(movimientoInventarioService.obtenerTodosLosMovimientos()).thenReturn(List.of(movimiento));
 
-        mockMvc.perform(get("/api/inventario/movimientos"))
+        mockMvc.perform(get("/inventario/movimientos"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].tipo").value("entrada"))
@@ -51,7 +51,7 @@ public class MovimientoInventarioControllerTest {
 
         when(movimientoInventarioService.obtenerMovimientoPorId(1L)).thenReturn(movimiento);
 
-        mockMvc.perform(get("/api/inventario/movimientos/1"))
+        mockMvc.perform(get("/inventario/movimientos/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.tipo").value("entrada"));
@@ -66,7 +66,7 @@ public class MovimientoInventarioControllerTest {
 
         when(movimientoInventarioService.obtenerMovimientosPorInventarioId(10L)).thenReturn(List.of(movimiento));
 
-        mockMvc.perform(get("/api/inventario/movimientos/inventario/10"))
+        mockMvc.perform(get("/inventario/movimientos/inventario/10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].inventarioId").value(10));
     }
@@ -80,7 +80,7 @@ public class MovimientoInventarioControllerTest {
 
         when(movimientoInventarioService.obtenerMovimientosPorTipo("salida")).thenReturn(List.of(movimiento));
 
-        mockMvc.perform(get("/api/inventario/movimientos/tipo/salida"))
+        mockMvc.perform(get("/inventario/movimientos/tipo/salida"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].tipo").value("salida"))
                 .andExpect(jsonPath("$[0].cantidad").value(20));
@@ -95,7 +95,7 @@ public class MovimientoInventarioControllerTest {
 
         when(movimientoInventarioService.obtenerMovimientosPorUsuarioId(5L)).thenReturn(List.of(movimiento));
 
-        mockMvc.perform(get("/api/inventario/movimientos/usuario/5"))
+        mockMvc.perform(get("/inventario/movimientos/usuario/5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].usuarioId").value(5));
     }

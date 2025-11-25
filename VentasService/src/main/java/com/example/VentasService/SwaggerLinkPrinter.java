@@ -1,4 +1,4 @@
-package com.example.ventasservice;
+package com.example.VentasService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

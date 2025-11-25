@@ -37,7 +37,7 @@ public class PersonaControllerTest {
 
         when(personaService.obtenerTodasLasPersonas()).thenReturn(List.of(persona));
 
-        mockMvc.perform(get("/api/personas"))
+        mockMvc.perform(get("/personas"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].idPersona").value(1))
                 .andExpect(jsonPath("$[0].nombre").value("Juan"))
@@ -54,7 +54,7 @@ public class PersonaControllerTest {
 
         when(personaService.obtenerPersonaPorId(1L)).thenReturn(persona);
 
-        mockMvc.perform(get("/api/personas/1"))
+        mockMvc.perform(get("/personas/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idPersona").value(1))
                 .andExpect(jsonPath("$.nombre").value("Juan"));
@@ -68,7 +68,7 @@ public class PersonaControllerTest {
 
         when(personaService.obtenerPersonaPorRut("12345678-9")).thenReturn(persona);
 
-        mockMvc.perform(get("/api/personas/rut/12345678-9"))
+        mockMvc.perform(get("/personas/rut/12345678-9"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.rut").value("12345678-9"));
     }
@@ -81,7 +81,7 @@ public class PersonaControllerTest {
 
         when(personaService.obtenerPersonaPorUsername("juan@email.cl")).thenReturn(persona);
 
-        mockMvc.perform(get("/api/personas/username/juan@email.cl"))
+        mockMvc.perform(get("/personas/username/juan@email.cl"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("juan@email.cl"));
     }
@@ -95,7 +95,7 @@ public class PersonaControllerTest {
 
         when(personaService.crearPersona(any(PersonaDTO.class))).thenReturn(persona);
 
-        mockMvc.perform(post("/api/personas")
+        mockMvc.perform(post("/personas")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nombre\": \"María\", \"apellido\": \"González\", \"rut\": \"11111111-1\", \"email\": \"maria@email.cl\"}"))
                 .andExpect(status().isCreated())
@@ -111,7 +111,7 @@ public class PersonaControllerTest {
 
         when(personaService.actualizarPersona(eq(1L), any(PersonaDTO.class))).thenReturn(personaActualizada);
 
-        mockMvc.perform(put("/api/personas/1")
+        mockMvc.perform(put("/personas/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nombre\": \"Juan Modificado\"}"))
                 .andExpect(status().isOk())
@@ -122,7 +122,7 @@ public class PersonaControllerTest {
     void eliminarPersona_returnsNoContent() throws Exception {
         when(personaService.eliminarPersona(1L)).thenReturn(true);
 
-        mockMvc.perform(delete("/api/personas/1"))
+        mockMvc.perform(delete("/personas/1"))
                 .andExpect(status().isNoContent());
     }
 
@@ -134,7 +134,7 @@ public class PersonaControllerTest {
 
         when(personaService.buscarPersonasPorNombre("Juan")).thenReturn(List.of(persona));
 
-        mockMvc.perform(get("/api/personas/buscar").param("nombre", "Juan"))
+        mockMvc.perform(get("/personas/buscar").param("nombre", "Juan"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].nombre").value("Juan"));
     }
@@ -147,7 +147,7 @@ public class PersonaControllerTest {
 
         when(personaService.obtenerPersonasPorEstado("activo")).thenReturn(List.of(persona));
 
-        mockMvc.perform(get("/api/personas/estado/activo"))
+        mockMvc.perform(get("/personas/estado/activo"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].estado").value("activo"));
     }
@@ -160,7 +160,7 @@ public class PersonaControllerTest {
 
         when(personaService.verificarCredenciales("juan@email.cl", "password123")).thenReturn(persona);
 
-        mockMvc.perform(post("/api/personas/verificar-credenciales")
+        mockMvc.perform(post("/personas/verificar-credenciales")
                 .param("username", "juan@email.cl")
                 .param("password", "password123"))
                 .andExpect(status().isOk())

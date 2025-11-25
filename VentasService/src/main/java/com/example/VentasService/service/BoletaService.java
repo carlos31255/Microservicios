@@ -1,20 +1,15 @@
-package com.example.ventasservice.service;
+package com.example.VentasService.service;
 
-import com.example.ventasservice.dto.*;
-import com.example.ventasservice.model.Boleta;
-import com.example.ventasservice.model.DetalleBoleta;
-import com.example.ventasservice.repository.BoletaRepository;
-import com.example.ventasservice.repository.DetalleBoletaRepository;
+import com.example.VentasService.dto.*;
+import com.example.VentasService.model.Boleta;
+import com.example.VentasService.model.DetalleBoleta;
+import com.example.VentasService.repository.BoletaRepository;
+import com.example.VentasService.repository.DetalleBoletaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.reactive.function.client.WebClient;
 import java.time.Duration;
 
@@ -108,15 +103,18 @@ public class BoletaService {
         for (DetalleBoleta d : detalles) {
             try {
                 WebClient client = webClientBuilder.baseUrl(inventarioServiceUrl).build();
-                Integer delta = -Math.abs(d.getCantidad());
+                // InventarioService expects a positive 'cantidad' and a 'tipo' of 'entrada' or 'salida'.
+                // For a sale we send the absolute quantity and tipo='salida'. Previously we sent a
+                // negative cantidad which caused InventarioService to reject the request (cantidad must be > 0).
+                Integer cantidadAjuste = Math.abs(d.getCantidad());
                 java.util.Map<String, Object> body = java.util.Map.of(
-                        "cantidad", delta,
-                        "tipo", "salida",
-                        "motivo", "venta",
-                        "usuarioId", boletaGuardada.getClienteId()
+                    "cantidad", cantidadAjuste,
+                    "tipo", "salida",
+                    "motivo", "venta",
+                    "usuarioId", boletaGuardada.getClienteId()
                 );
                 client.put()
-                        .uri("/api/inventario/{id}/ajustar", d.getInventarioId())
+                    .uri("/inventario/{id}/ajustar", d.getInventarioId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(body)
                         .retrieve()
@@ -136,8 +134,8 @@ public class BoletaService {
                     "idBoleta", boletaGuardada.getId(),
                     "estadoEntrega", "pendiente"
             );
-            client2.post()
-                    .uri("/api/entregas")
+                client2.post()
+                    .uri("/entregas")
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(entregaBody)
                     .retrieve()

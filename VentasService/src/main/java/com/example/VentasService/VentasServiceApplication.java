@@ -1,4 +1,4 @@
-package com.example.ventasservice;
+package com.example.VentasService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

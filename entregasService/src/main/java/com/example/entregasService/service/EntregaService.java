@@ -145,7 +145,7 @@ public class EntregaService {
         try {
             // LLAMADA A VENTAS
                     BoletaExternaDTO boleta = ventasWebClient.get()
-                    .uri("/api/ventas/boletas/" + entrega.getIdBoleta())
+                    .uri("/ventas/boletas/" + entrega.getIdBoleta())
                     .retrieve()
                     .bodyToMono(BoletaExternaDTO.class)
                     .block(Duration.ofSeconds(2));
@@ -157,7 +157,7 @@ public class EntregaService {
                     if (boleta.getClienteId() != null) {
                     try {
                         ClienteExternoDTO cliente = usuarioWebClient.get()
-                            .uri("/api/clientes/" + boleta.getClienteId())
+                            .uri("/clientes/" + boleta.getClienteId())
                                 .retrieve()
                                 .bodyToMono(ClienteExternoDTO.class)
                                 .block(Duration.ofSeconds(2));
@@ -215,8 +215,8 @@ public class EntregaService {
     private boolean validarTransportista(Long idTransportista) {
         if (idTransportista == null) return true; // Si es null, no validamos (o lanzamos error, depende de tu lógica)
         try {
-             usuarioWebClient.get()
-                    .uri("/api/transportistas/" + idTransportista)
+                  usuarioWebClient.get()
+                      .uri("/transportistas/" + idTransportista)
                     .retrieve()
                     .toBodilessEntity()
                     .block(Duration.ofSeconds(1));

@@ -1,7 +1,7 @@
-package com.example.ventasservice.controller;
+package com.example.VentasService.controller;
 
-import com.example.ventasservice.repository.BoletaRepository;
-import com.example.ventasservice.repository.DetalleBoletaRepository;
+import com.example.VentasService.repository.BoletaRepository;
+import com.example.VentasService.repository.DetalleBoletaRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/ventas/estadisticas")
+@RequestMapping("/ventas/estadisticas")
 @Tag(name = "Estadísticas", description = "Estadísticas y reportes de ventas")
 public class EstadisticasController {
     

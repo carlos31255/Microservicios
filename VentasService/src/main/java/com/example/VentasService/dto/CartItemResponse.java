@@ -1,4 +1,4 @@
-package com.example.ventasservice.dto;
+package com.example.VentasService.dto;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +14,7 @@ public class CartItemResponse {
     private Long clienteId;
     private Long modeloId;
     private Long tallaId;
+    private String talla; // human-readable label (keeps compatibility with frontend expecting a string)
     private Integer cantidad;
     private Integer precioUnitario;
     private String nombreProducto;

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/geografia/regiones")
+@RequestMapping("/geografia/regiones")
 @CrossOrigin(origins = "*")
 public class RegionController {
 

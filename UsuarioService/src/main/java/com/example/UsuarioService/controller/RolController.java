@@ -11,12 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controlador REST para gestión de Roles.
- * Endpoints para CRUD de roles del sistema.
- */
+
 @RestController
-@RequestMapping("/api/roles")
+@RequestMapping("/roles")
 @CrossOrigin(origins = "*")
 @Tag(name = "Roles", description = "API para gestión de roles del sistema")
 public class RolController {

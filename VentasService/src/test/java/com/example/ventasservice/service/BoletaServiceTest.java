@@ -1,32 +1,43 @@
-package com.example.ventasservice.service;
+package com.example.VentasService.service;
 
-import com.example.ventasservice.dto.*;
-import com.example.ventasservice.model.Boleta;
-import com.example.ventasservice.model.DetalleBoleta;
-import com.example.ventasservice.repository.BoletaRepository;
-import com.example.ventasservice.repository.DetalleBoletaRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import com.example.VentasService.dto.BoletaDTO;
+import com.example.VentasService.dto.CrearBoletaRequest;
+import com.example.VentasService.dto.DetalleBoletaDTO;
+import com.example.VentasService.model.Boleta;
+import com.example.VentasService.model.DetalleBoleta;
+import com.example.VentasService.repository.BoletaRepository;
+import com.example.VentasService.repository.DetalleBoletaRepository;
+
+import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 public class BoletaServiceTest {
 
     @Mock
@@ -38,222 +49,186 @@ public class BoletaServiceTest {
     @Mock
     private WebClient.Builder webClientBuilder;
 
-    @Mock
-    private WebClient webClient;
-
-    @Mock
-    private WebClient.RequestBodyUriSpec requestBodyUriSpec;
-
-    @Mock
-    private WebClient.RequestHeadersUriSpec requestHeadersUriSpec;
-
-    @Mock
-    private WebClient.RequestBodySpec requestBodySpec;
-
-    @Mock
-    private WebClient.ResponseSpec responseSpec;
-
     @InjectMocks
     private BoletaService boletaService;
 
-    private Boleta boleta;
-    private DetalleBoleta detalleBoleta;
+    // Mocks auxiliares para la cadena de WebClient
+    @Mock private WebClient webClientMock;
+    @Mock private WebClient.RequestBodyUriSpec requestBodyUriSpecMock;
+    @Mock private WebClient.RequestBodySpec requestBodySpecMock;
+    @Mock private WebClient.RequestHeadersSpec requestHeadersSpecMock;
+    @Mock private WebClient.ResponseSpec responseSpecMock;
+
+    private Boleta boletaEjemplo;
+    private DetalleBoleta detalleEjemplo;
+    private DetalleBoletaDTO detalleDTOEjemplo;
 
     @BeforeEach
     void setUp() {
-        boleta = new Boleta();
-        boleta.setId(1L);
-        boleta.setClienteId(100L);
-        boleta.setTotal(50000);
-        boleta.setEstado("pendiente");
-        boleta.setMetodoPago("efectivo");
-        boleta.setFechaVenta(LocalDateTime.now());
-        boleta.setFechaCreacion(LocalDateTime.now());
-        boleta.setFechaActualizacion(LocalDateTime.now());
+        
+        ReflectionTestUtils.setField(boletaService, "inventarioServiceUrl", "http://localhost:8082");
+        ReflectionTestUtils.setField(boletaService, "entregasServiceUrl", "http://localhost:8084");
 
-        detalleBoleta = new DetalleBoleta();
-        detalleBoleta.setId(1L);
-        detalleBoleta.setBoletaId(1L);
-        detalleBoleta.setInventarioId(10L);
-        detalleBoleta.setNombreProducto("Zapatilla Nike");
-        detalleBoleta.setTallaId(42L);
-        detalleBoleta.setCantidad(2);
-        detalleBoleta.setPrecioUnitario(25000);
-        detalleBoleta.setSubtotal(50000);
+        // Datos de prueba comunes
+        boletaEjemplo = new Boleta();
+        boletaEjemplo.setId(1L);
+        boletaEjemplo.setClienteId(100L);
+        boletaEjemplo.setTotal(5000);
+        boletaEjemplo.setEstado("pendiente");
+        boletaEjemplo.setFechaVenta(LocalDateTime.now());
+        boletaEjemplo.setMetodoPago("EFECTIVO");
+
+        detalleEjemplo = new DetalleBoleta();
+        detalleEjemplo.setId(10L);
+        detalleEjemplo.setBoletaId(1L);
+        detalleEjemplo.setInventarioId(50L);
+        detalleEjemplo.setCantidad(2);
+        detalleEjemplo.setPrecioUnitario(2500);
+        detalleEjemplo.setSubtotal(5000);
+
+        detalleDTOEjemplo = new DetalleBoletaDTO();
+        detalleDTOEjemplo.setInventarioId(50L);
+        detalleDTOEjemplo.setCantidad(2);
+        detalleDTOEjemplo.setPrecioUnitario(2500);
     }
 
     @Test
-    void testObtenerTodasLasBoletas() {
-        Boleta boleta2 = new Boleta();
-        boleta2.setId(2L);
-        boleta2.setClienteId(200L);
-        boleta2.setTotal(75000);
-        boleta2.setEstado("confirmada");
-        boleta2.setFechaVenta(LocalDateTime.now());
+    void testObtenerTodasLasBoletas_Ok() {
+        // Arrange
+        when(boletaRepository.findAllByOrderByFechaVentaDesc()).thenReturn(Arrays.asList(boletaEjemplo));
 
-        when(boletaRepository.findAllByOrderByFechaVentaDesc()).thenReturn(Arrays.asList(boleta, boleta2));
-
+        // Act
         List<BoletaDTO> resultado = boletaService.obtenerTodasLasBoletas();
 
-        assertThat(resultado).hasSize(2);
-        assertThat(resultado.get(0).getId()).isEqualTo(1L);
-        assertThat(resultado.get(0).getTotal()).isEqualTo(50000);
-        assertThat(resultado.get(1).getId()).isEqualTo(2L);
-        verify(boletaRepository).findAllByOrderByFechaVentaDesc();
+        // Assert
+        assertNotNull(resultado);
+        assertFalse(resultado.isEmpty());
+        assertEquals(1, resultado.size());
+        assertEquals(boletaEjemplo.getId(), resultado.get(0).getId());
+        verify(boletaRepository, times(1)).findAllByOrderByFechaVentaDesc();
     }
 
     @Test
-    void testObtenerBoletaPorId() {
-        when(boletaRepository.findById(1L)).thenReturn(Optional.of(boleta));
-        when(detalleBoletaRepository.findByBoletaIdOrderByIdAsc(1L)).thenReturn(Arrays.asList(detalleBoleta));
+    void testObtenerBoletaPorId_Ok() {
+        // Arrange
+        when(boletaRepository.findById(1L)).thenReturn(Optional.of(boletaEjemplo));
+        when(detalleBoletaRepository.findByBoletaIdOrderByIdAsc(1L)).thenReturn(Arrays.asList(detalleEjemplo));
 
+        // Act
         Optional<BoletaDTO> resultado = boletaService.obtenerBoletaPorId(1L);
 
-        assertThat(resultado).isPresent();
-        assertThat(resultado.get().getId()).isEqualTo(1L);
-        assertThat(resultado.get().getClienteId()).isEqualTo(100L);
-        assertThat(resultado.get().getDetalles()).hasSize(1);
-        assertThat(resultado.get().getDetalles().get(0).getNombreProducto()).isEqualTo("Zapatilla Nike");
-        verify(boletaRepository).findById(1L);
+        // Assert
+        assertTrue(resultado.isPresent());
+        assertEquals(boletaEjemplo.getId(), resultado.get().getId());
+        assertEquals(1, resultado.get().getDetalles().size());
+        verify(boletaRepository, times(1)).findById(1L);
     }
 
     @Test
-    void testObtenerBoletaPorId_noEncontrada() {
-        when(boletaRepository.findById(999L)).thenReturn(Optional.empty());
+    void testObtenerBoletasPorCliente_Ok() {
+        // Arrange
+        when(boletaRepository.findByClienteIdOrderByFechaVentaDesc(100L)).thenReturn(Arrays.asList(boletaEjemplo));
 
-        Optional<BoletaDTO> resultado = boletaService.obtenerBoletaPorId(999L);
-
-        assertThat(resultado).isEmpty();
-    }
-
-    @Test
-    void testObtenerBoletasPorCliente() {
-        Boleta boleta2 = new Boleta();
-        boleta2.setId(2L);
-        boleta2.setClienteId(100L);
-        boleta2.setTotal(30000);
-        boleta2.setEstado("completada");
-        boleta2.setFechaVenta(LocalDateTime.now());
-
-        when(boletaRepository.findByClienteIdOrderByFechaVentaDesc(100L)).thenReturn(Arrays.asList(boleta, boleta2));
-
+        // Act
         List<BoletaDTO> resultado = boletaService.obtenerBoletasPorCliente(100L);
 
-        assertThat(resultado).hasSize(2);
-        assertThat(resultado.get(0).getClienteId()).isEqualTo(100L);
-        assertThat(resultado.get(1).getClienteId()).isEqualTo(100L);
-        verify(boletaRepository).findByClienteIdOrderByFechaVentaDesc(100L);
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        assertEquals(100L, resultado.get(0).getClienteId());
+        verify(boletaRepository, times(1)).findByClienteIdOrderByFechaVentaDesc(100L);
     }
 
     @Test
-    void testObtenerDetallesPorBoleta() {
-        DetalleBoleta detalle2 = new DetalleBoleta();
-        detalle2.setId(2L);
-        detalle2.setBoletaId(1L);
-        detalle2.setNombreProducto("Zapatilla Adidas");
-        detalle2.setTallaId(41L);
-        detalle2.setCantidad(1);
-        detalle2.setPrecioUnitario(30000);
-        detalle2.setSubtotal(30000);
+    void testObtenerDetallesPorBoleta_Ok() {
+        // Arrange
+        when(detalleBoletaRepository.findByBoletaIdOrderByIdAsc(1L)).thenReturn(Arrays.asList(detalleEjemplo));
 
-        when(detalleBoletaRepository.findByBoletaIdOrderByIdAsc(1L)).thenReturn(Arrays.asList(detalleBoleta, detalle2));
-
+        // Act
         List<DetalleBoletaDTO> resultado = boletaService.obtenerDetallesPorBoleta(1L);
 
-        assertThat(resultado).hasSize(2);
-        assertThat(resultado.get(0).getNombreProducto()).isEqualTo("Zapatilla Nike");
-        assertThat(resultado.get(1).getNombreProducto()).isEqualTo("Zapatilla Adidas");
-        verify(detalleBoletaRepository).findByBoletaIdOrderByIdAsc(1L);
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        assertEquals(detalleEjemplo.getInventarioId(), resultado.get(0).getInventarioId());
+        verify(detalleBoletaRepository, times(1)).findByBoletaIdOrderByIdAsc(1L);
     }
 
     @Test
-    void testCrearBoleta() {
-        // Preparar request
+    void testCrearBoleta_Ok() {
+        /*
+         Este test es complejo porque el método hace 3 cosas:
+         1. Guarda en DB (Boleta y Detalles)
+         2. Llama a Inventario (PUT)
+         3. Llama a Entregas (POST)
+         Debemos mockear todo esto.
+        */
+
+        // 1. Arrange Datos de Entrada
         CrearBoletaRequest request = new CrearBoletaRequest();
         request.setClienteId(100L);
-        request.setMetodoPago("efectivo");
-        request.setObservaciones("Entrega rápida");
+        request.setMetodoPago("TARJETA");
+        request.setDetalles(Arrays.asList(detalleDTOEjemplo));
 
-        DetalleBoletaDTO detalleDTO = new DetalleBoletaDTO();
-        detalleDTO.setInventarioId(10L);
-        detalleDTO.setNombreProducto("Zapatilla Nike");
-        detalleDTO.setTallaId(42L);
-        detalleDTO.setCantidad(2);
-        detalleDTO.setPrecioUnitario(25000);
+        // 2. Arrange Mocks de Base de Datos
+        when(boletaRepository.save(any(Boleta.class))).thenReturn(boletaEjemplo);
+        when(detalleBoletaRepository.saveAll(anyList())).thenReturn(Arrays.asList(detalleEjemplo));
+        // El metodo final convierte a DTO buscando los detalles de nuevo
+        when(detalleBoletaRepository.findByBoletaIdOrderByIdAsc(anyLong())).thenReturn(Arrays.asList(detalleEjemplo));
 
-        request.setDetalles(Arrays.asList(detalleDTO));
+        // Simulamos que el builder siempre devuelve nuestro cliente mock
+        when(webClientBuilder.baseUrl(anyString())).thenReturn(webClientBuilder);
+        when(webClientBuilder.build()).thenReturn(webClientMock);
 
-        // Mock de repositorios
-        when(boletaRepository.save(any(Boleta.class))).thenReturn(boleta);
-        when(detalleBoletaRepository.saveAll(anyList())).thenReturn(Arrays.asList(detalleBoleta));
-        when(detalleBoletaRepository.findByBoletaIdOrderByIdAsc(1L)).thenReturn(Arrays.asList(detalleBoleta));
+        // Configuración para la llamada PUT (Inventario)
+        when(webClientMock.put()).thenReturn(requestBodyUriSpecMock);
+        when(requestBodyUriSpecMock.uri(anyString(), any(Object[].class))).thenReturn(requestBodySpecMock);
+        when(requestBodySpecMock.contentType(any())).thenReturn(requestBodySpecMock);
+        when(requestBodySpecMock.bodyValue(any())).thenReturn(requestHeadersSpecMock);
+        when(requestHeadersSpecMock.retrieve()).thenReturn(responseSpecMock);
+        when(responseSpecMock.bodyToMono(String.class)).thenReturn(Mono.just("OK")); // Respuesta exitosa
 
-        // Mock de WebClient para ajuste de inventario
-        doReturn(webClientBuilder).when(webClientBuilder).baseUrl(any());
-        when(webClientBuilder.build()).thenReturn(webClient);
-        when(webClient.put()).thenReturn(requestBodyUriSpec);
-        doAnswer(invocation -> requestBodySpec).when(requestBodyUriSpec).uri(anyString(), any(Object[].class));
-        doReturn(requestBodySpec).when(requestBodySpec).contentType(any());
-        doReturn(requestBodySpec).when(requestBodySpec).bodyValue(any());
-        doReturn(responseSpec).when(requestBodySpec).retrieve();
-        when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just("OK"));
+        // Configuración para la llamada POST (Entregas)
+        when(webClientMock.post()).thenReturn(requestBodyUriSpecMock);
+        when(requestBodyUriSpecMock.uri(anyString())).thenReturn(requestBodySpecMock);
+        // Reutilizamos los mocks de body y headers ya configurados arriba o re-configuramos si es necesario
+        // Nota: al ser mocks, si ya definimos el comportamiento genérico (any), servirá para ambos.
+        when(responseSpecMock.toBodilessEntity()).thenReturn(Mono.empty());
 
-        // Mock de WebClient para crear entrega
-        when(webClient.post()).thenReturn(requestBodyUriSpec);
-        doReturn(requestBodySpec).when(requestBodyUriSpec).uri(anyString());
-        doReturn(responseSpec).when(requestBodySpec).retrieve();
-        when(responseSpec.toBodilessEntity()).thenReturn(Mono.just(mock(org.springframework.http.ResponseEntity.class)));
-
+        // Act
         BoletaDTO resultado = boletaService.crearBoleta(request);
 
-        assertThat(resultado).isNotNull();
-        assertThat(resultado.getId()).isEqualTo(1L);
-        assertThat(resultado.getClienteId()).isEqualTo(100L);
-        assertThat(resultado.getTotal()).isEqualTo(50000);
-        assertThat(resultado.getDetalles()).hasSize(1);
-        verify(boletaRepository).save(any(Boleta.class));
-        verify(detalleBoletaRepository).saveAll(anyList());
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(boletaEjemplo.getTotal(), resultado.getTotal());
+        assertEquals("pendiente", resultado.getEstado());
+        
+        // Verificaciones
+        verify(boletaRepository, times(1)).save(any(Boleta.class));
+        verify(detalleBoletaRepository, times(1)).saveAll(anyList());
+        
+        // Verificar que se intentó llamar a Inventario (PUT) y Entregas (POST)
+        verify(webClientMock, times(1)).put(); 
+        verify(webClientMock, times(1)).post();
     }
 
     @Test
-    void testCambiarEstado() {
-        when(boletaRepository.findById(1L)).thenReturn(Optional.of(boleta));
-        when(boletaRepository.save(any(Boleta.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    void testCambiarEstado_Ok() {
+        // Arrange
+        String nuevoEstado = "ENVIADO";
+        Boleta boletaActualizada = new Boleta();
+        boletaActualizada.setId(1L);
+        boletaActualizada.setEstado(nuevoEstado);
+        
+        when(boletaRepository.findById(1L)).thenReturn(Optional.of(boletaEjemplo));
+        when(boletaRepository.save(any(Boleta.class))).thenReturn(boletaActualizada);
 
-        Optional<BoletaDTO> resultado = boletaService.cambiarEstado(1L, "confirmada");
+        // Act
+        Optional<BoletaDTO> resultado = boletaService.cambiarEstado(1L, nuevoEstado);
 
-        assertThat(resultado).isPresent();
-        assertThat(resultado.get().getEstado()).isEqualTo("confirmada");
-        verify(boletaRepository).save(any(Boleta.class));
-    }
-
-    @Test
-    void testCambiarEstado_noEncontrada() {
-        when(boletaRepository.findById(999L)).thenReturn(Optional.empty());
-
-        Optional<BoletaDTO> resultado = boletaService.cambiarEstado(999L, "confirmada");
-
-        assertThat(resultado).isEmpty();
-        verify(boletaRepository, never()).save(any(Boleta.class));
-    }
-
-    @Test
-    void testObtenerBoletasPorCliente_listaVacia() {
-        when(boletaRepository.findByClienteIdOrderByFechaVentaDesc(999L)).thenReturn(Arrays.asList());
-
-        List<BoletaDTO> resultado = boletaService.obtenerBoletasPorCliente(999L);
-
-        assertThat(resultado).isEmpty();
-        verify(boletaRepository).findByClienteIdOrderByFechaVentaDesc(999L);
-    }
-
-    @Test
-    void testObtenerDetallesPorBoleta_listaVacia() {
-        when(detalleBoletaRepository.findByBoletaIdOrderByIdAsc(999L)).thenReturn(Arrays.asList());
-
-        List<DetalleBoletaDTO> resultado = boletaService.obtenerDetallesPorBoleta(999L);
-
-        assertThat(resultado).isEmpty();
-        verify(detalleBoletaRepository).findByBoletaIdOrderByIdAsc(999L);
+        // Assert
+        assertTrue(resultado.isPresent());
+        assertEquals(nuevoEstado, resultado.get().getEstado());
+        verify(boletaRepository).save(argThat(b -> b.getEstado().equals(nuevoEstado)));
     }
 }

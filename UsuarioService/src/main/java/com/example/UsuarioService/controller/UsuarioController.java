@@ -11,12 +11,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controlador REST para gestión de Usuarios.
- * Endpoints para CRUD y operaciones de usuarios (relación Persona-Rol).
- */
+
 @RestController
-@RequestMapping("/api/usuarios")
+@RequestMapping("/usuarios")
 @CrossOrigin(origins = "*")
 @Tag(name = "Usuarios", description = "API para gestión de usuarios (relación Persona-Rol)")
 public class UsuarioController {

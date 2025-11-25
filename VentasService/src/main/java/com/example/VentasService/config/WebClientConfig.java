@@ -1,4 +1,4 @@
-package com.example.ventasservice.config;
+package com.example.VentasService.config;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;

@@ -1,6 +1,6 @@
-package com.example.ventasservice.repository;
+package com.example.VentasService.repository;
 
-import com.example.ventasservice.model.CartItem;
+import com.example.VentasService.model.CartItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +12,8 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     List<CartItem> findByClienteId(Long clienteId);
 
     Optional<CartItem> findByClienteIdAndModeloIdAndTallaId(Long clienteId, Long modeloId, Long tallaId);
+
+    Optional<CartItem> findByClienteIdAndModeloId(Long clienteId, Long modeloId);
 
     int countByClienteId(Long clienteId);
 

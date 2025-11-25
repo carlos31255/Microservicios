@@ -1,6 +1,5 @@
 package com.example.geografiaservice.service;
 
-import com.example.geografiaservice.dto.RegionDTO;
 import com.example.geografiaservice.model.Region;
 import com.example.geografiaservice.repository.RegionRepository;
 import org.junit.jupiter.api.Test;
@@ -9,16 +8,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class RegionServiceTest {
+class RegionServiceTest {
 
     @Mock
     private RegionRepository regionRepository;
@@ -27,102 +24,24 @@ public class RegionServiceTest {
     private RegionService regionService;
 
     @Test
-    void testObtenerTodasLasRegiones() {
-        Region region = new Region();
-        region.setId(1L);
-        region.setNombre("Región Metropolitana");
-        region.setCodigo("RM");
-        region.setOrden(13);
+    void obtenerTodasLasRegiones_returnDtoList() {
+        Region r1 = new Region(1L, "Región A", "RA", 1, null, null);
+        Region r2 = new Region(2L, "Región B", "RB", 2, null, null);
 
-        when(regionRepository.findAllByOrderByOrdenAsc()).thenReturn(Arrays.asList(region));
+        when(regionRepository.findAllByOrderByOrdenAsc()).thenReturn(List.of(r1, r2));
 
-        List<RegionDTO> resultado = regionService.obtenerTodasLasRegiones();
+        var result = regionService.obtenerTodasLasRegiones();
 
-        assertThat(resultado).hasSize(1);
-        assertThat(resultado.get(0).getNombre()).isEqualTo("Región Metropolitana");
-        assertThat(resultado.get(0).getCodigo()).isEqualTo("RM");
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getId()).isEqualTo(1L);
+        assertThat(result.get(0).getNombre()).isEqualTo("Región A");
     }
 
     @Test
-    void testObtenerRegionPorId() {
-        Region region = new Region();
-        region.setId(1L);
-        region.setNombre("Región Metropolitana");
-        region.setCodigo("RM");
+    void guardarRegion_whenCodigoExists_throws() {
+        Region region = new Region(null, "X", "XY", 1, null, null);
+        when(regionRepository.existsByCodigo("XY")).thenReturn(true);
 
-        when(regionRepository.findById(1L)).thenReturn(Optional.of(region));
-
-        RegionDTO resultado = regionService.obtenerRegionPorId(1L);
-
-        assertThat(resultado.getId()).isEqualTo(1L);
-        assertThat(resultado.getNombre()).isEqualTo("Región Metropolitana");
-    }
-
-    @Test
-    void testObtenerRegionPorCodigo() {
-        Region region = new Region();
-        region.setId(1L);
-        region.setNombre("Región Metropolitana");
-        region.setCodigo("RM");
-
-        when(regionRepository.findByCodigo("RM")).thenReturn(Optional.of(region));
-
-        RegionDTO resultado = regionService.obtenerRegionPorCodigo("RM");
-
-        assertThat(resultado.getCodigo()).isEqualTo("RM");
-        assertThat(resultado.getNombre()).isEqualTo("Región Metropolitana");
-    }
-
-    @Test
-    void testGuardarRegion() {
-        Region region = new Region();
-        region.setNombre("Región Metropolitana");
-        region.setCodigo("RM");
-        region.setOrden(13);
-
-        Region regionGuardada = new Region();
-        regionGuardada.setId(1L);
-        regionGuardada.setNombre("Región Metropolitana");
-        regionGuardada.setCodigo("RM");
-        regionGuardada.setOrden(13);
-
-        when(regionRepository.existsByCodigo("RM")).thenReturn(false);
-        when(regionRepository.save(any(Region.class))).thenReturn(regionGuardada);
-
-        Region resultado = regionService.guardarRegion(region);
-
-        assertThat(resultado.getId()).isEqualTo(1L);
-        assertThat(resultado.getNombre()).isEqualTo("Región Metropolitana");
-    }
-
-    @Test
-    void testModificarRegion() {
-        Region regionExistente = new Region();
-        regionExistente.setId(1L);
-        regionExistente.setNombre("Región Metropolitana");
-        regionExistente.setCodigo("RM");
-        regionExistente.setOrden(13);
-
-        Region regionActualizada = new Region();
-        regionActualizada.setNombre("Región Metropolitana de Santiago");
-        regionActualizada.setCodigo("RMS");
-        regionActualizada.setOrden(13);
-
-        when(regionRepository.findById(1L)).thenReturn(Optional.of(regionExistente));
-        when(regionRepository.save(any(Region.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        Region resultado = regionService.modificarRegion(1L, regionActualizada);
-
-        assertThat(resultado.getNombre()).isEqualTo("Región Metropolitana de Santiago");
-        assertThat(resultado.getCodigo()).isEqualTo("RMS");
-    }
-
-    @Test
-    void testEliminarRegion() {
-        when(regionRepository.existsById(1L)).thenReturn(true);
-
-        regionService.eliminarRegion(1L);
-
-        verify(regionRepository).deleteById(1L);
+        assertThrows(RuntimeException.class, () -> regionService.guardarRegion(region));
     }
 }

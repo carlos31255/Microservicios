@@ -1,6 +1,6 @@
-package com.example.ventasservice.repository;
+package com.example.VentasService.repository;
 
-import com.example.ventasservice.model.DetalleBoleta;
+import com.example.VentasService.model.DetalleBoleta;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

@@ -35,7 +35,7 @@ public class RolControllerTest {
 
         when(rolService.obtenerTodosLosRoles()).thenReturn(List.of(rol));
 
-        mockMvc.perform(get("/api/roles"))
+        mockMvc.perform(get("/roles"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].idRol").value(1))
                 .andExpect(jsonPath("$[0].nombreRol").value("Administrador"))
@@ -50,7 +50,7 @@ public class RolControllerTest {
 
         when(rolService.obtenerRolPorId(1L)).thenReturn(rol);
 
-        mockMvc.perform(get("/api/roles/1"))
+        mockMvc.perform(get("/roles/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idRol").value(1))
                 .andExpect(jsonPath("$.nombreRol").value("Administrador"));
@@ -64,7 +64,7 @@ public class RolControllerTest {
 
         when(rolService.obtenerRolPorNombre("Transportista")).thenReturn(rol);
 
-        mockMvc.perform(get("/api/roles/nombre/Transportista"))
+        mockMvc.perform(get("/roles/nombre/Transportista"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idRol").value(2))
                 .andExpect(jsonPath("$.nombreRol").value("Transportista"));
@@ -79,7 +79,7 @@ public class RolControllerTest {
 
         when(rolService.crearRol(any(RolDTO.class))).thenReturn(rol);
 
-        mockMvc.perform(post("/api/roles")
+        mockMvc.perform(post("/roles")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nombreRol\": \"Nuevo Rol\", \"descripcion\": \"Descripción del rol\"}"))
                 .andExpect(status().isCreated())
@@ -95,7 +95,7 @@ public class RolControllerTest {
 
         when(rolService.actualizarRol(eq(1L), any(RolDTO.class))).thenReturn(rolActualizado);
 
-        mockMvc.perform(put("/api/roles/1")
+        mockMvc.perform(put("/roles/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nombreRol\": \"Rol Modificado\"}"))
                 .andExpect(status().isOk())
@@ -106,7 +106,7 @@ public class RolControllerTest {
     void eliminarRol_returnsNoContent() throws Exception {
         when(rolService.eliminarRol(1L)).thenReturn(true);
 
-        mockMvc.perform(delete("/api/roles/1"))
+        mockMvc.perform(delete("/roles/1"))
                 .andExpect(status().isNoContent());
     }
 }

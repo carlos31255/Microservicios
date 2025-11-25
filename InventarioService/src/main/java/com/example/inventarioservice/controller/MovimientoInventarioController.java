@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/inventario/movimientos")
+@RequestMapping("/inventario/movimientos")
 @CrossOrigin(origins = "*")
 public class MovimientoInventarioController {
     @Autowired

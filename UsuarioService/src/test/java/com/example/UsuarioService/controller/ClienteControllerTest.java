@@ -37,7 +37,7 @@ public class ClienteControllerTest {
 
         when(clienteService.obtenerTodosLosClientes()).thenReturn(List.of(cliente));
 
-        mockMvc.perform(get("/api/clientes"))
+        mockMvc.perform(get("/clientes"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].idPersona").value(1))
                 .andExpect(jsonPath("$[0].categoria").value("VIP"))
@@ -53,7 +53,7 @@ public class ClienteControllerTest {
 
         when(clienteService.obtenerClientePorId(1L)).thenReturn(cliente);
 
-        mockMvc.perform(get("/api/clientes/1"))
+        mockMvc.perform(get("/clientes/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.idPersona").value(1))
                 .andExpect(jsonPath("$.categoria").value("VIP"));
@@ -68,7 +68,7 @@ public class ClienteControllerTest {
 
         when(clienteService.crearCliente(any(ClienteDTO.class))).thenReturn(cliente);
 
-        mockMvc.perform(post("/api/clientes")
+        mockMvc.perform(post("/clientes")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"idPersona\": 1, \"categoria\": \"premium\"}"))
                 .andExpect(status().isCreated())
@@ -84,7 +84,7 @@ public class ClienteControllerTest {
 
         when(clienteService.actualizarCategoria(eq(1L), eq("VIP"))).thenReturn(clienteActualizado);
 
-        mockMvc.perform(put("/api/clientes/1/categoria")
+        mockMvc.perform(put("/clientes/1/categoria")
                         .param("nuevaCategoria", "VIP"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.categoria").value("VIP"));
@@ -94,7 +94,7 @@ public class ClienteControllerTest {
     void eliminarCliente_returnsNoContent() throws Exception {
         when(clienteService.eliminarCliente(1L)).thenReturn(true);
 
-        mockMvc.perform(delete("/api/clientes/1"))
+        mockMvc.perform(delete("/clientes/1"))
                 .andExpect(status().isNoContent());
     }
 
@@ -106,7 +106,7 @@ public class ClienteControllerTest {
 
         when(clienteService.obtenerClientesPorCategoria("VIP")).thenReturn(List.of(cliente));
 
-        mockMvc.perform(get("/api/clientes/categoria/VIP"))
+        mockMvc.perform(get("/clientes/categoria/VIP"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].categoria").value("VIP"));
     }
