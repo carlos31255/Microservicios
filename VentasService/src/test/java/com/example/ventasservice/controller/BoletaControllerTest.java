@@ -1,5 +1,6 @@
-package com.example.VentasService.controller;
+package com.example.ventasservice.controller;
 
+import com.example.VentasService.controller.BoletaController;
 import com.example.VentasService.dto.BoletaDTO;
 import com.example.VentasService.dto.CambiarEstadoRequest;
 import com.example.VentasService.dto.CrearBoletaRequest;

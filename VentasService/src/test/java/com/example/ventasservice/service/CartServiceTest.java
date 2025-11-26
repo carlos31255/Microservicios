@@ -1,7 +1,9 @@
-package com.example.VentasService.service;
+package com.example.ventasservice.service;
 
 import com.example.VentasService.model.CartItem;
 import com.example.VentasService.repository.CartItemRepository;
+import com.example.VentasService.service.CartService;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

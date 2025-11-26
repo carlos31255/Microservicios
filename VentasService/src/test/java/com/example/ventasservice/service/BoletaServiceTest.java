@@ -1,4 +1,4 @@
-package com.example.VentasService.service;
+package com.example.ventasservice.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -34,6 +34,7 @@ import com.example.VentasService.model.Boleta;
 import com.example.VentasService.model.DetalleBoleta;
 import com.example.VentasService.repository.BoletaRepository;
 import com.example.VentasService.repository.DetalleBoletaRepository;
+import com.example.VentasService.service.BoletaService;
 
 import reactor.core.publisher.Mono;
 
