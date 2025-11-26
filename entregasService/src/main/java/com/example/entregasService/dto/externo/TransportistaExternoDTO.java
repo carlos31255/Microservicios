@@ -1,18 +1,17 @@
-package com.example.UsuarioService.dto;
+package com.example.entregasService.dto.externo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class TransportistaDTO {
+@AllArgsConstructor
+public class TransportistaExternoDTO {
     private Long idTransportista;
     private Long idPersona;
     private String patente;
     private String tipoVehiculo;
-    private String licencia;
     private Boolean activo;
-    private Long fechaRegistro;
+    private String licencia;
 }

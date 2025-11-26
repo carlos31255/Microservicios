@@ -21,4 +21,5 @@ public class PersonaDTO {
     private String password; // Solo se usa al crear, nunca se devuelve en consultas
     private Long fechaRegistro;
     private String estado;
+    private String categoria; // Si la persona es cliente, se devuelve la categoría estandarizada
 }

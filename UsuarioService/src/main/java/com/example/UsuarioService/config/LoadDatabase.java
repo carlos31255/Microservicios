@@ -8,6 +8,8 @@ import com.example.UsuarioService.repository.PersonaRepository;
 import com.example.UsuarioService.repository.RolRepository;
 import com.example.UsuarioService.repository.UsuarioRepository;
 import com.example.UsuarioService.repository.ClienteRepository;
+import com.example.UsuarioService.repository.TransportistaRepository;
+import com.example.UsuarioService.model.Transportista;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -28,11 +30,12 @@ public class LoadDatabase {
     }
 
     @Bean
-    CommandLineRunner initDatabase(
+        CommandLineRunner initDatabase(
             RolRepository rolRepository,
             PersonaRepository personaRepository,
             UsuarioRepository usuarioRepository,
             ClienteRepository clienteRepository,
+            TransportistaRepository transportistaRepository,
             BCryptPasswordEncoder passwordEncoder) {
 
         return args -> {
@@ -296,7 +299,7 @@ public class LoadDatabase {
             log.info("Personas verificadas: {} personas en base de datos", personaRepository.count());
 
             // ============================================
-            // Precargar Usuarios (relación Persona-Rol)
+            // Precargar Usuarios 
             // ============================================
             log.info("Paso 3: Verificando usuarios...");
 
@@ -317,6 +320,20 @@ public class LoadDatabase {
                 usuarioTransportista.setIdRol(transportistaRol.getIdRol());
                 usuarioRepository.save(usuarioTransportista);
             }
+
+            // Transportista (información adicional: patente, tipo de vehículo, activo)
+            transportistaRepository.findByIdPersona(personaTransportista.getIdPersona())
+                    .orElseGet(() -> {
+                        log.info("Creando transportista para persona: {} {}", personaTransportista.getNombre(), personaTransportista.getApellido());
+                        Transportista t = new Transportista();
+                        t.setIdPersona(personaTransportista.getIdPersona());
+                        t.setPatente("CL-TR-" + personaTransportista.getIdPersona());
+                        t.setTipoVehiculo("Camioneta");
+                        t.setLicencia("LIC-" + personaTransportista.getIdPersona());
+                        t.setActivo(true);
+                        t.setFechaRegistro(System.currentTimeMillis());
+                        return transportistaRepository.save(t);
+                    });
 
             // Usuarios Clientes
             Persona[] personasClientes = {
@@ -341,8 +358,9 @@ public class LoadDatabase {
             // ============================================
             log.info("Paso 4: Verificando clientes...");
 
-            // Definir categorías para cada cliente
-            String[][] clientesData = {
+                // Definir categorías para cada cliente (normalizadas)
+                String[][] clientesData = {
+                    {personaAdmin.getIdPersona().toString(), "ADMIN"},      // Admin Sistema (categoría ADMIN)
                     {personaCliente1.getIdPersona().toString(), "VIP"},      // María González
                     {personaPedro.getIdPersona().toString(), "regular"},     // Pedro Ramírez
                     {personaAna.getIdPersona().toString(), "VIP"},           // Ana Martínez
@@ -352,7 +370,7 @@ public class LoadDatabase {
                     {personaPatricia.getIdPersona().toString(), "VIP"},      // Patricia Rojas
                     {personaDiego.getIdPersona().toString(), "premium"},     // Diego Morales
                     {personaSofia.getIdPersona().toString(), "regular"}      // Sofía Vargas
-            };
+                };
 
             for (String[] clienteData : clientesData) {
                 Long idPersona = Long.parseLong(clienteData[0]);
@@ -361,10 +379,15 @@ public class LoadDatabase {
                 clienteRepository.findByIdPersonaWithPersona(idPersona)
                         .orElseGet(() -> {
                             Persona persona = personaRepository.findById(idPersona).get();
-                            log.info("Creando cliente: {} {} - {}", persona.getNombre(), persona.getApellido(), categoria);
+                            // Normalizar categoría antes de guardar
+                            String categoriaStd = categoria;
+                            try {
+                                categoriaStd = com.example.UsuarioService.model.Categoria.fromString(categoria).name();
+                            } catch (Exception ignored) {}
+                            log.info("Creando cliente: {} {} - {}", persona.getNombre(), persona.getApellido(), categoriaStd);
                             Cliente cliente = new Cliente();
                             cliente.setIdPersona(idPersona);
-                            cliente.setCategoria(categoria);
+                            cliente.setCategoria(categoriaStd);
                             return clienteRepository.save(cliente);
                         });
             }

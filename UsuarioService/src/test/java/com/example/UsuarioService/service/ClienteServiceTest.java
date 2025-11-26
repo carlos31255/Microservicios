@@ -92,7 +92,7 @@ public class ClienteServiceTest {
 
         Cliente clienteGuardado = new Cliente();
         clienteGuardado.setIdPersona(1L);
-        clienteGuardado.setCategoria("premium");
+        clienteGuardado.setCategoria("PREMIUM");
         clienteGuardado.setPersona(persona);
 
         when(personaRepository.existsById(1L)).thenReturn(true);
@@ -103,7 +103,7 @@ public class ClienteServiceTest {
         ClienteDTO resultado = clienteService.crearCliente(clienteDTO);
 
         assertThat(resultado.getIdPersona()).isEqualTo(1L);
-        assertThat(resultado.getCategoria()).isEqualTo("premium");
+        assertThat(resultado.getCategoria()).isEqualTo("PREMIUM");
         assertThat(resultado.getNombreCompleto()).isEqualTo("María González");
     }
 

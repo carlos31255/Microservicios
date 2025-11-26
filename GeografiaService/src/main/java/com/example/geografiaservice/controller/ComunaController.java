@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/geografia/comunas")
-@CrossOrigin(origins = "*")
 public class ComunaController {
 
     private final ComunaService comunaService;

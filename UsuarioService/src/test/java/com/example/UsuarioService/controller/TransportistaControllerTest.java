@@ -30,12 +30,14 @@ public class TransportistaControllerTest {
         t.setIdTransportista(1L);
         t.setIdPersona(10L);
         t.setPatente("ABC-123");
+        t.setLicencia("LIC-10");
 
         when(transportistaService.obtenerTodos()).thenReturn(List.of(t));
 
         mockMvc.perform(get("/transportistas"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].idTransportista").value(1));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].idTransportista").value(1))
+            .andExpect(jsonPath("$[0].licencia").value("LIC-10"));
     }
 
     @Test
@@ -43,11 +45,13 @@ public class TransportistaControllerTest {
         TransportistaDTO t = new TransportistaDTO();
         t.setIdTransportista(2L);
         t.setPatente("XYZ-999");
+        t.setLicencia("LIC-2");
 
         when(transportistaService.obtenerPorId(2L)).thenReturn(t);
 
         mockMvc.perform(get("/transportistas/2"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.idTransportista").value(2));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.idTransportista").value(2))
+            .andExpect(jsonPath("$.licencia").value("LIC-2"));
     }
 }

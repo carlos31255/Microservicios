@@ -3,6 +3,8 @@ package com.example.UsuarioService.service;
 import com.example.UsuarioService.dto.PersonaDTO;
 import com.example.UsuarioService.model.Persona;
 import com.example.UsuarioService.repository.PersonaRepository;
+import com.example.UsuarioService.repository.ClienteRepository;
+import com.example.UsuarioService.model.Categoria;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,9 @@ public class PersonaService {
 
     @Autowired
     private PersonaRepository personaRepository;
+
+    @Autowired
+    private ClienteRepository clienteRepository;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -210,6 +215,15 @@ public class PersonaService {
 
     // Convertir Persona a PersonaDTO
     private PersonaDTO convertirADTO(Persona persona) {
+        // Intentar enriquecer la respuesta con la categoría si la persona es cliente
+        String categoria = null;
+        try {
+            var optCliente = clienteRepository.findById(persona.getIdPersona());
+            if (optCliente.isPresent()) {
+                categoria = Categoria.fromString(optCliente.get().getCategoria()).name();
+            }
+        } catch (Exception ignored) {}
+
         return new PersonaDTO(
                 persona.getIdPersona(),
                 persona.getNombre(),
@@ -223,7 +237,8 @@ public class PersonaService {
                 persona.getUsername(),
                 null, // password - nunca se devuelve en consultas
                 persona.getFechaRegistro(),
-                persona.getEstado()
+                persona.getEstado(),
+                categoria
         );
     }
 }

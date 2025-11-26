@@ -32,6 +32,9 @@ public class Transportista {
     @Column(nullable = false)
     private Boolean activo = true;
 
+    @Column(length = 50)
+    private String licencia;
+
     @Column(name = "fecha_registro")
     private Long fechaRegistro = System.currentTimeMillis();
 }

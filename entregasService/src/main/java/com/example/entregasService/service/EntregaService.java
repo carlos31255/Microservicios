@@ -61,7 +61,37 @@ public class EntregaService {
     public EntregaDTO crearEntrega(EntregaRequestDTO requestDTO) {
         Entrega entrega = toEntity(requestDTO);
         // Validaciones adicionales podrían ir aquí
-        return toDTO(entregaRepository.save(entrega));
+        Entrega guardada = entregaRepository.save(entrega);
+
+        // Si no se proporcionó transportista, intentar asignar uno automáticamente
+        if (guardada.getIdTransportista() == null) {
+            try {
+                // Protegemos la llamada: si el cliente WebClient no está configurado en tests, evitamos NPE
+                WebClient.RequestHeadersUriSpec uriSpec = usuarioWebClient.get();
+                if (uriSpec != null) {
+                    WebClient.RequestHeadersSpec<?> reqSpec = uriSpec.uri("/transportistas");
+                    WebClient.ResponseSpec resp = reqSpec.retrieve();
+                    java.util.List<com.example.entregasService.dto.externo.TransportistaExternoDTO> lista = resp
+                            .bodyToFlux(com.example.entregasService.dto.externo.TransportistaExternoDTO.class)
+                            .collectList()
+                            .block(java.time.Duration.ofSeconds(2));
+
+                    if (lista != null && !lista.isEmpty()) {
+                        Long elegido = lista.get(0).getIdTransportista();
+                        if (elegido != null) {
+                            guardada.setIdTransportista(elegido);
+                            // Mantener estado por defecto 'pendiente' para compatibilidad con el resto del flujo
+                            guardada.setFechaAsignacion(java.time.LocalDateTime.now());
+                            entregaRepository.save(guardada);
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                log.warn("No fue posible auto-asignar transportista: {}", ex.getMessage());
+            }
+        }
+
+        return toDTO(guardada);
     }
 
     // Obtiene entregas asignadas a un transportista específico.
@@ -143,38 +173,40 @@ public class EntregaService {
 
         // Llamadas Externas Protegidas
         try {
-            // LLAMADA A VENTAS
-                    BoletaExternaDTO boleta = ventasWebClient.get()
-                    .uri("/ventas/boletas/" + entrega.getIdBoleta())
-                    .retrieve()
-                    .bodyToMono(BoletaExternaDTO.class)
-                    .block(Duration.ofSeconds(2));
+            // LLAMADA A VENTAS (solo si tenemos idBoleta válido)
+            if (entrega.getIdBoleta() != null) {
+                BoletaExternaDTO boleta = ventasWebClient.get()
+                        .uri("/ventas/boletas/" + entrega.getIdBoleta())
+                        .retrieve()
+                        .bodyToMono(BoletaExternaDTO.class)
+                        .block(Duration.ofSeconds(2));
 
-            if (boleta != null) {
-                dto.setTotalBoleta(boleta.getTotal());
+                if (boleta != null) {
+                    dto.setTotalBoleta(boleta.getTotal());
 
-                // LLAMADA A USUARIOS (Solo si tenemos clienteId)
+                    // LLAMADA A USUARIOS (Solo si tenemos clienteId)
                     if (boleta.getClienteId() != null) {
-                    try {
-                        ClienteExternoDTO cliente = usuarioWebClient.get()
-                            .uri("/clientes/" + boleta.getClienteId())
-                                .retrieve()
-                                .bodyToMono(ClienteExternoDTO.class)
-                                .block(Duration.ofSeconds(2));
+                        try {
+                            ClienteExternoDTO cliente = usuarioWebClient.get()
+                                    .uri("/clientes/" + boleta.getClienteId())
+                                    .retrieve()
+                                    .bodyToMono(ClienteExternoDTO.class)
+                                    .block(Duration.ofSeconds(2));
 
-                        if (cliente != null) {
-                            dto.setNombreCliente(cliente.getNombreCompleto());
-                            dto.setTelefonoCliente(cliente.getTelefono());
+                            if (cliente != null) {
+                                dto.setNombreCliente(cliente.getNombreCompleto());
+                                dto.setTelefonoCliente(cliente.getTelefono());
+                            }
+                        } catch (WebClientResponseException.NotFound ex) {
+                            log.warn("Cliente ID {} no encontrado en UsuarioService", boleta.getClienteId());
+                            dto.setNombreCliente("Cliente no encontrado (ID: " + boleta.getClienteId() + ")");
+                        } catch (Exception e) {
+                            log.error("Error conectando con UsuarioService: {}", e.getMessage());
+                            dto.setNombreCliente("Error serv. usuarios");
                         }
-                    } catch (WebClientResponseException.NotFound ex) {
-                        log.warn("Cliente ID {} no encontrado en UsuarioService", boleta.getClienteId());
-                        dto.setNombreCliente("Cliente no encontrado (ID: " + boleta.getClienteId() + ")");
-                    } catch (Exception e) {
-                        log.error("Error conectando con UsuarioService: {}", e.getMessage());
-                        dto.setNombreCliente("Error serv. usuarios");
+                    } else {
+                        dto.setNombreCliente("Boleta sin cliente asociado");
                     }
-                } else {
-                    dto.setNombreCliente("Boleta sin cliente asociado");
                 }
             }
 

@@ -48,6 +48,7 @@ public class TransportistaService {
             existing.setPatente(dto.getPatente());
             existing.setTipoVehiculo(dto.getTipoVehiculo());
             existing.setActivo(dto.getActivo() != null ? dto.getActivo() : existing.getActivo());
+            existing.setLicencia(dto.getLicencia() != null ? dto.getLicencia() : existing.getLicencia());
             Transportista updated = transportistaRepository.save(existing);
             return toDTO(updated);
         }).orElse(null);
@@ -66,6 +67,7 @@ public class TransportistaService {
         dto.setIdPersona(t.getIdPersona());
         dto.setPatente(t.getPatente());
         dto.setTipoVehiculo(t.getTipoVehiculo());
+        dto.setLicencia(t.getLicencia());
         dto.setActivo(t.getActivo());
         dto.setFechaRegistro(t.getFechaRegistro());
         return dto;
@@ -76,6 +78,7 @@ public class TransportistaService {
         t.setIdPersona(dto.getIdPersona());
         t.setPatente(dto.getPatente());
         t.setTipoVehiculo(dto.getTipoVehiculo());
+        t.setLicencia(dto.getLicencia());
         t.setActivo(dto.getActivo() != null ? dto.getActivo() : true);
         t.setFechaRegistro(dto.getFechaRegistro() != null ? dto.getFechaRegistro() : System.currentTimeMillis());
         return t;

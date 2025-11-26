@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/geografia/regiones")
-@CrossOrigin(origins = "*")
 public class RegionController {
 
     private final RegionService regionService;

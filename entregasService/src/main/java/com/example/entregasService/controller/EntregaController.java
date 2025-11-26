@@ -1,15 +1,9 @@
 package com.example.entregasService.controller;
 
-import com.example.entregasService.dto.ActualizarEstadoDTO;
-import com.example.entregasService.dto.AsignarTransportistaDTO;
-import com.example.entregasService.dto.ContarEstadoDTO;
+
 import com.example.entregasService.dto.EntregaDTO;
-import com.example.entregasService.dto.EntregaRequestDTO;
 import com.example.entregasService.service.EntregaService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

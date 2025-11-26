@@ -63,7 +63,7 @@ public class ClienteControllerTest {
     void crearCliente_returnsCreated() throws Exception {
         ClienteDTO cliente = new ClienteDTO();
         cliente.setIdPersona(1L);
-        cliente.setCategoria("premium");
+        cliente.setCategoria("PREMIUM");
         cliente.setNombreCompleto("María González");
 
         when(clienteService.crearCliente(any(ClienteDTO.class))).thenReturn(cliente);
@@ -73,7 +73,7 @@ public class ClienteControllerTest {
                 .content("{\"idPersona\": 1, \"categoria\": \"premium\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.idPersona").value(1))
-                .andExpect(jsonPath("$.categoria").value("premium"));
+                .andExpect(jsonPath("$.categoria").value("PREMIUM"));
     }
 
     @Test

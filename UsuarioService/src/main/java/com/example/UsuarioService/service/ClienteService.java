@@ -3,6 +3,7 @@ package com.example.UsuarioService.service;
 import com.example.UsuarioService.dto.ClienteDTO;
 import com.example.UsuarioService.model.Cliente;
 import com.example.UsuarioService.model.Persona;
+import com.example.UsuarioService.model.Categoria;
 import com.example.UsuarioService.repository.ClienteRepository;
 import com.example.UsuarioService.repository.PersonaRepository;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,9 @@ public class ClienteService {
 
     // Obtener clientes por categoría
     public List<ClienteDTO> obtenerClientesPorCategoria(String categoria) {
-        return clienteRepository.findByCategoria(categoria)
+        // Normalizar categoría recibida
+        Categoria cat = Categoria.fromString(categoria);
+        return clienteRepository.findByCategoria(cat.name())
                 .stream()
                 .map(cliente -> {
                     Persona persona = personaRepository.findById(cliente.getIdPersona()).orElse(null);
@@ -59,9 +62,12 @@ public class ClienteService {
             throw new IllegalArgumentException("Ya existe un cliente para la persona con id: " + clienteDTO.getIdPersona());
         }
         
+        // Normalizar y validar categoría proporcionada
+        Categoria cat = Categoria.fromString(clienteDTO.getCategoria());
+
         Cliente cliente = new Cliente();
         cliente.setIdPersona(clienteDTO.getIdPersona());
-        cliente.setCategoria(clienteDTO.getCategoria());
+        cliente.setCategoria(cat.name());
         
         Cliente clienteGuardado = clienteRepository.save(cliente);
         Persona persona = personaRepository.findById(clienteGuardado.getIdPersona()).orElse(null);
@@ -76,7 +82,9 @@ public class ClienteService {
             return null;
         }
 
-        cliente.setCategoria(nuevaCategoria);
+        // Normalizar y validar la nueva categoría
+        Categoria cat = Categoria.fromString(nuevaCategoria);
+        cliente.setCategoria(cat.name());
         Cliente clienteActualizado = clienteRepository.save(cliente);
         Persona persona = personaRepository.findById(clienteActualizado.getIdPersona()).orElse(null);
         
@@ -101,9 +109,16 @@ public class ClienteService {
         String email = persona != null ? persona.getEmail() : "";
         String telefono = persona != null ? persona.getTelefono() : "";
 
+        String categoriaStd;
+        try {
+            categoriaStd = Categoria.fromString(cliente.getCategoria()).name();
+        } catch (Exception e) {
+            categoriaStd = cliente.getCategoria();
+        }
+
         return new ClienteDTO(
                 cliente.getIdPersona(),
-                cliente.getCategoria(),
+                categoriaStd,
                 cliente.getActivo(),
                 nombreCompleto,
                 email,
@@ -118,9 +133,16 @@ public class ClienteService {
         String email = persona != null ? persona.getEmail() : "";
         String telefono = persona != null ? persona.getTelefono() : "";
 
+        String categoriaStd;
+        try {
+            categoriaStd = Categoria.fromString(cliente.getCategoria()).name();
+        } catch (Exception e) {
+            categoriaStd = cliente.getCategoria();
+        }
+
         return new ClienteDTO(
                 cliente.getIdPersona(),
-                cliente.getCategoria(),
+                categoriaStd,
                 cliente.getActivo(),
                 nombreCompleto,
                 email,
