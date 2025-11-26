@@ -8,8 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -71,17 +74,37 @@ public class PersonaController {
         return ResponseEntity.ok(personas);
     }
 
-    @PostMapping("/crear")
+   @PostMapping("/crear")
     @Operation(summary = "Crear nueva persona", description = "Registra una nueva persona en el sistema")
     public ResponseEntity<Object> crearPersona(@RequestBody PersonaDTO personaDTO) {
         try {
-
             PersonaDTO nuevaPersona = personaService.crearPersona(personaDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevaPersona);
+            
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+            // Error 400
+            Map<String, String> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+            
+        } catch (ResponseStatusException e) {
+            // Error 409 (Conflict) u otros lanzados por Spring
+            // Usamos HashMap porque permite nulos y es más seguro que Map.of aquí
+            Map<String, String> response = new HashMap<>();
+            
+            // e.getReason() contiene "Ya existe una persona con RUT..."
+            String mensaje = e.getReason() != null ? e.getReason() : "Error en la solicitud";
+            
+            response.put("error", mensaje); 
+            
+            return ResponseEntity.status(e.getStatusCode()).body(response);
+            
         } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(java.util.Map.of("error", "internal_error"));
+            // Error 500
+            ex.printStackTrace();
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Error interno del servidor");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 

@@ -2,8 +2,13 @@ package com.example.inventarioservice.service;
 
 import com.example.inventarioservice.dto.InventarioDTO;
 import com.example.inventarioservice.model.Inventario;
+import com.example.inventarioservice.model.Producto;
+import com.example.inventarioservice.model.Talla;
 import com.example.inventarioservice.repository.InventarioRepository;
 import com.example.inventarioservice.repository.MovimientoInventarioRepository;
+import com.example.inventarioservice.repository.ProductoRepository;
+import com.example.inventarioservice.repository.TallaRepository;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +31,12 @@ public class InventarioServiceTest {
 
     @Mock
     private MovimientoInventarioRepository movimientoInventarioRepository;
+
+    @Mock
+    private TallaRepository tallaRepository;
+
+    @Mock
+    private ProductoRepository productoRepository;
 
     @InjectMocks
     private InventarioService inventarioService;
@@ -137,14 +148,25 @@ public class InventarioServiceTest {
     }
 
     @Test
-    void testCrearInventario() {
-        Inventario inventario = new Inventario();
-        inventario.setProductoId(100L);
-        inventario.setNombre("Zapatilla Nike");
-        inventario.setTalla("42");
-        inventario.setCantidad(50);
-        inventario.setStockMinimo(10);
+   void testCrearInventario() {
+        // 1. PREPARAR EL INPUT (DTO)
+        InventarioDTO dto = new InventarioDTO();
+        dto.setProductoId(100L);
+        dto.setTallaId(10L); 
+        dto.setCantidad(50);
+        dto.setStockMinimo(10);
 
+        // 2. PREPARAR LOS DATOS SIMULADOS (MOCKS)
+        Producto mockProducto = new Producto();
+        mockProducto.setId(100L);
+        mockProducto.setNombre("Zapatilla Nike");
+
+        // El servicio buscará la Talla, así que debemos simular que existe
+        Talla mockTalla = new Talla();
+        mockTalla.setId(10L);
+        mockTalla.setValor("42");
+
+        // Este es el objeto que simularás que guarda la BD
         Inventario inventarioGuardado = new Inventario();
         inventarioGuardado.setId(1L);
         inventarioGuardado.setProductoId(100L);
@@ -153,17 +175,23 @@ public class InventarioServiceTest {
         inventarioGuardado.setCantidad(50);
         inventarioGuardado.setStockMinimo(10);
 
+        // 3. DEFINIR EL COMPORTAMIENTO DE LOS MOCKS
+        when(productoRepository.findById(100L)).thenReturn(Optional.of(mockProducto));
+        
+        when(tallaRepository.findById(10L)).thenReturn(Optional.of(mockTalla));
+        
         when(inventarioRepository.existsByProductoIdAndTalla(100L, "42")).thenReturn(false);
+        
         when(inventarioRepository.save(any(Inventario.class))).thenReturn(inventarioGuardado);
-        when(movimientoInventarioRepository.save(any())).thenReturn(null);
 
-        Inventario resultado = inventarioService.crearInventario(inventario);
+        Inventario resultado = inventarioService.crearInventario(dto);
 
+        // 5. VERIFICACIONES (ASSERTS)
         assertThat(resultado.getId()).isEqualTo(1L);
         assertThat(resultado.getNombre()).isEqualTo("Zapatilla Nike");
         assertThat(resultado.getCantidad()).isEqualTo(50);
+        assertThat(resultado.getTalla()).isEqualTo("42");
     }
-
     @Test
     void testVerificarDisponibilidad() {
         Inventario inventario = new Inventario();

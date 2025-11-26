@@ -118,7 +118,7 @@ public class InventarioControllerTest {
         when(inventarioService.buscarProductosPorNombre("Nike")).thenReturn(List.of(inventario));
 
         mockMvc.perform(get("/inventario/buscar")
-                        .param("nombre", "Nike"))
+                .param("nombre", "Nike"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].nombre").value("Zapatilla Nike"));
     }
@@ -133,11 +133,12 @@ public class InventarioControllerTest {
         inventario.setCantidad(50);
         inventario.setStockMinimo(10);
 
-        when(inventarioService.crearInventario(any(Inventario.class))).thenReturn(inventario);
+        when(inventarioService.crearInventario(any(InventarioDTO.class))).thenReturn(inventario);
 
         mockMvc.perform(post("/inventario/crear")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"productoId\": 100, \"nombre\": \"Zapatilla Nike\", \"talla\": \"42\", \"cantidad\": 50, \"stockMinimo\": 10}"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                        "{\"productoId\": 100, \"nombre\": \"Zapatilla Nike\", \"talla\": \"42\", \"cantidad\": 50, \"stockMinimo\": 10}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.nombre").value("Zapatilla Nike"));
@@ -150,11 +151,10 @@ public class InventarioControllerTest {
         inventario.setNombre("Zapatilla Nike Actualizada");
         inventario.setCantidad(60);
 
-        when(inventarioService.actualizarInventario(eq(1L), any(Inventario.class))).thenReturn(inventario);
-
+        when(inventarioService.actualizarInventario(eq(1L), any(InventarioDTO.class))).thenReturn(inventario);
         mockMvc.perform(put("/inventario/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\": \"Zapatilla Nike Actualizada\", \"cantidad\": 60}"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"nombre\": \"Zapatilla Nike Actualizada\", \"cantidad\": 60}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nombre").value("Zapatilla Nike Actualizada"))
                 .andExpect(jsonPath("$.cantidad").value(60));
@@ -165,9 +165,9 @@ public class InventarioControllerTest {
         when(inventarioService.verificarDisponibilidad(100L, "42", 10)).thenReturn(true);
 
         mockMvc.perform(get("/inventario/verificar-disponibilidad")
-                        .param("productoId", "100")
-                        .param("talla", "42")
-                        .param("cantidad", "10"))
+                .param("productoId", "100")
+                .param("talla", "42")
+                .param("cantidad", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.disponible").value(true));
     }

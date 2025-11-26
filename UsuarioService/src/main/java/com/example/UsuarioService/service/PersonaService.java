@@ -81,15 +81,13 @@ public class PersonaService {
 
     // Crear persona
     public PersonaDTO crearPersona(PersonaDTO personaDTO) {
-        // Basic validations expected by mobile client
-        // Validate password only when provided (registration path)
+       
         if (personaDTO.getPassword() != null && !personaDTO.getPassword().isEmpty()) {
             String pwd = personaDTO.getPassword();
             if (!PASSWORD_PATTERN.matcher(pwd).matches()) {
                 throw new IllegalArgumentException("Password demasiado débil");
             }
         }
-        // Validate optional fields only when provided
         if (personaDTO.getEmail() != null && !personaDTO.getEmail().trim().isEmpty()) {
             if (!EMAIL_PATTERN.matcher(personaDTO.getEmail().trim()).matches()) {
                 throw new IllegalArgumentException("Email inválido");

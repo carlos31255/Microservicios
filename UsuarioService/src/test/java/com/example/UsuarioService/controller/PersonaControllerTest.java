@@ -95,7 +95,7 @@ public class PersonaControllerTest {
 
         when(personaService.crearPersona(any(PersonaDTO.class))).thenReturn(persona);
 
-        mockMvc.perform(post("/personas")
+        mockMvc.perform(post("/personas/crear")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nombre\": \"María\", \"apellido\": \"González\", \"rut\": \"11111111-1\", \"email\": \"maria@email.cl\"}"))
                 .andExpect(status().isCreated())
