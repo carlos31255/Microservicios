@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -69,6 +70,60 @@ public class ProductoController {
         }
 
         return saveProductoSafe(producto);
+    }
+
+    // Actualizar producto (JSON)
+    @PutMapping("/editar/{id}")
+    public ResponseEntity<Producto> update(@PathVariable Long id, @RequestBody Producto producto) {
+        var opt = productoRepository.findById(id);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        Producto existing = opt.get();
+
+        // Actualizar campos básicos
+        if (producto.getNombre() != null) existing.setNombre(producto.getNombre());
+        if (producto.getMarcaId() != null) existing.setMarcaId(producto.getMarcaId());
+        if (producto.getDescripcion() != null) existing.setDescripcion(producto.getDescripcion());
+        if (producto.getImagenUrl() != null) existing.setImagenUrl(producto.getImagenUrl());
+        if (producto.getPrecioUnitario() != null) existing.setPrecioUnitario(producto.getPrecioUnitario());
+        if (producto.getTallas() != null) existing.setTallas(producto.getTallas());
+        if (producto.getImagen() != null) existing.setImagen(producto.getImagen());
+
+        Producto saved = productoRepository.save(existing);
+        return ResponseEntity.ok(saved);
+    }
+
+    // Actualizar producto con imagen (multipart)
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Producto> updateWithImage(
+            @PathVariable Long id,
+            @RequestPart("producto") Producto producto,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
+        var opt = productoRepository.findById(id);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        Producto existing = opt.get();
+
+        // Actualizar campos básicos
+        if (producto.getNombre() != null) existing.setNombre(producto.getNombre());
+        if (producto.getMarcaId() != null) existing.setMarcaId(producto.getMarcaId());
+        if (producto.getDescripcion() != null) existing.setDescripcion(producto.getDescripcion());
+        if (producto.getImagenUrl() != null) existing.setImagenUrl(producto.getImagenUrl());
+        if (producto.getPrecioUnitario() != null) existing.setPrecioUnitario(producto.getPrecioUnitario());
+        if (producto.getTallas() != null) existing.setTallas(producto.getTallas());
+
+        if (imagen != null && !imagen.isEmpty()) {
+            try {
+                existing.setImagen(imagen.getBytes());
+                String original = imagen.getOriginalFilename();
+                if (original != null && !original.isBlank()) {
+                    existing.setImagenUrl("/images/" + original);
+                }
+            } catch (java.io.IOException ioe) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+
+        Producto saved = productoRepository.save(existing);
+        return ResponseEntity.ok(saved);
     }
 
     private ResponseEntity<Producto> saveProductoSafe(Producto producto) {
