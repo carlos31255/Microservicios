@@ -1,6 +1,5 @@
-package com.example.ventasservice.controller;
+package com.example.VentasService.controller;
 
-import com.example.VentasService.controller.EstadisticasController;
 import com.example.VentasService.model.Boleta;
 import com.example.VentasService.repository.BoletaRepository;
 import com.example.VentasService.repository.DetalleBoletaRepository;

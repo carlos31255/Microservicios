@@ -1,8 +1,7 @@
-package com.example.ventasservice.service;
+package com.example.VentasService.service;
 
 import com.example.VentasService.model.CartItem;
 import com.example.VentasService.repository.CartItemRepository;
-import com.example.VentasService.service.CartService;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

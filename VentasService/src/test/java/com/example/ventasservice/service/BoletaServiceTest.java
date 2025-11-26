@@ -1,4 +1,4 @@
-package com.example.ventasservice.service;
+package com.example.VentasService.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
