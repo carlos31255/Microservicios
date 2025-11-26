@@ -12,7 +12,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/inventario")
-@CrossOrigin(origins = "*")
 public class InventarioController {
 
     private final InventarioService inventarioService;
@@ -94,11 +93,11 @@ public class InventarioController {
         }
     }
 
-    // Crear nuevo inventario
+    // Crear nuevo inventario (usa DTO)
     @PostMapping("/crear")
-    public ResponseEntity<Inventario> crearInventario(@RequestBody Inventario inventario) {
+    public ResponseEntity<Inventario> crearInventario(@RequestBody InventarioDTO inventarioDTO) {
         try {
-            Inventario nuevoInventario = inventarioService.crearInventario(inventario);
+            Inventario nuevoInventario = inventarioService.crearInventario(inventarioDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevoInventario);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -107,13 +106,13 @@ public class InventarioController {
         }
     }
 
-    // Actualizar inventario
+    // Actualizar inventario (usa DTO)
     @PutMapping("/{id}")
     public ResponseEntity<Inventario> actualizarInventario(
-            @PathVariable Long id, 
-            @RequestBody Inventario inventario) {
+            @PathVariable Long id,
+            @RequestBody InventarioDTO inventarioDTO) {
         try {
-            Inventario inventarioActualizado = inventarioService.actualizarInventario(id, inventario);
+            Inventario inventarioActualizado = inventarioService.actualizarInventario(id, inventarioDTO);
             return ResponseEntity.ok(inventarioActualizado);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

@@ -14,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/personas")
-@CrossOrigin(origins = "*")
 @Tag(name = "Personas", description = "API para gestión de personas")
 public class PersonaController {
 
@@ -72,16 +71,20 @@ public class PersonaController {
         return ResponseEntity.ok(personas);
     }
 
-    @PostMapping
+    @PostMapping("/crear")
     @Operation(summary = "Crear nueva persona", description = "Registra una nueva persona en el sistema")
-    public ResponseEntity<PersonaDTO> crearPersona(@RequestBody PersonaDTO personaDTO) {
+    public ResponseEntity<Object> crearPersona(@RequestBody PersonaDTO personaDTO) {
         try {
+
             PersonaDTO nuevaPersona = personaService.crearPersona(personaDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(nuevaPersona);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(java.util.Map.of("error", "internal_error"));
         }
     }
+
 
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar persona", description = "Actualiza los datos de una persona existente")

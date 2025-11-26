@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DetalleVentaReporteDTO {
+public class DetalleVentaDTO {
     private String numeroBoleta;
-    private long fecha; // epoch millis
+    private Long fecha; // epoch millis
     private String nombreCliente;
     private Integer montoTotal;
     private String estado;

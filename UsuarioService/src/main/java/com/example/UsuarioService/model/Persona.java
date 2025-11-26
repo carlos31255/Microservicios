@@ -33,7 +33,7 @@ public class Persona {
     private String apellido;
 
     @Column(nullable = false, unique = true, length = 12)
-    private String rut; // RUT completo con dígito verificador (ej: "12345678-9")
+    private String rut; // RUT completo con dígito verificador (ej: "12345678-9"). Obligatorio
 
     @Column(length = 20)
     private String telefono;

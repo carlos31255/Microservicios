@@ -8,7 +8,9 @@ import com.example.UsuarioService.model.Categoria;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -108,19 +110,25 @@ public class PersonaService {
                 throw new IllegalArgumentException("Número de puerta inválido");
             }
         }
-        // Verificar que no exista el RUT
-        if (personaRepository.existsByRut(personaDTO.getRut())) {
-            throw new IllegalArgumentException("Ya existe una persona con RUT: " + personaDTO.getRut());
+        // Verificar que RUT esté presente y sea único
+        if (personaDTO.getRut() == null || personaDTO.getRut().trim().isEmpty()) {
+            throw new IllegalArgumentException("RUT obligatorio");
+        }
+        if (personaRepository.existsByRut(personaDTO.getRut().trim())) {
+            // 409 CONFLICT es el código estándar para recursos duplicados
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Ya existe una persona con RUT: " + personaDTO.getRut());
         }
         // Verificar que no exista el username
         if (personaRepository.existsByUsername(personaDTO.getUsername())) {
             throw new IllegalArgumentException("Ya existe una persona con username: " + personaDTO.getUsername());
         }
-        
+
         Persona persona = new Persona();
         persona.setNombre(personaDTO.getNombre());
         persona.setApellido(personaDTO.getApellido());
-        persona.setRut(personaDTO.getRut());
+        // Guardar RUT (obligatorio)
+        persona.setRut(personaDTO.getRut().trim());
         persona.setTelefono(personaDTO.getTelefono());
         persona.setEmail(personaDTO.getEmail());
         persona.setIdComuna(personaDTO.getIdComuna());
@@ -130,13 +138,14 @@ public class PersonaService {
         // Hasheo de la contraseña al crear la persona
         if (personaDTO.getPassword() != null && !personaDTO.getPassword().isEmpty()) {
             // Se guarda la contraseña en formato seguro usando BCrypt
-            persona.setPassHash(passwordEncoder.encode(personaDTO.getPassword()));
+            String hashed = passwordEncoder.encode(personaDTO.getPassword());
+            persona.setPassHash(hashed);
         } else {
             persona.setPassHash("");
         }
         persona.setFechaRegistro(System.currentTimeMillis());
         persona.setEstado("activo");
-        
+
         Persona personaGuardada = personaRepository.save(persona);
         return convertirADTO(personaGuardada);
     }
@@ -180,7 +189,8 @@ public class PersonaService {
                 matches = passwordEncoder.matches(password, persona.getPassHash());
             } catch (Exception ignored) {
             }
-            // Fallback: aceptar coincidencia directa en passHash (útil para tests que usan passHash sin encode)
+            // Fallback: aceptar coincidencia directa en passHash (útil para tests que usan
+            // passHash sin encode)
             if (matches || (persona.getPassHash() != null && persona.getPassHash().equals(password))) {
                 return convertirADTO(persona);
             }
@@ -226,7 +236,8 @@ public class PersonaService {
             if (optCliente.isPresent()) {
                 categoria = Categoria.fromString(optCliente.get().getCategoria()).name();
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         return new PersonaDTO(
                 persona.getIdPersona(),
@@ -242,7 +253,6 @@ public class PersonaService {
                 null, // password - nunca se devuelve en consultas
                 persona.getFechaRegistro(),
                 persona.getEstado(),
-                categoria
-        );
+                categoria);
     }
 }

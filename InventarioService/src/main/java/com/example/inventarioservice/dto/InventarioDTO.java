@@ -11,6 +11,7 @@ public class InventarioDTO {
     private Long id;
     private Long productoId;
     private String nombre;
+    private Long tallaId;
     private String talla;
     private Integer cantidad;
     private Integer stockMinimo;

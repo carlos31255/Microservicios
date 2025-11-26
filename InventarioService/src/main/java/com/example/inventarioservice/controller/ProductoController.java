@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.example.inventarioservice.model.Producto;
 import com.example.inventarioservice.model.Talla;
@@ -24,6 +26,8 @@ import com.example.inventarioservice.repository.TallaRepository;
 @RestController
 @RequestMapping("/inventario/productos")
 public class ProductoController {
+
+    private static final Logger log = LoggerFactory.getLogger(ProductoController.class);
 
     private final ProductoRepository productoRepository;
     private final TallaRepository tallaRepository;
@@ -79,14 +83,16 @@ public class ProductoController {
         if (opt.isEmpty()) return ResponseEntity.notFound().build();
         Producto existing = opt.get();
 
-        // Actualizar campos básicos
+        // Actualizar solo campos básicos (NO TALLAS)
         if (producto.getNombre() != null) existing.setNombre(producto.getNombre());
         if (producto.getMarcaId() != null) existing.setMarcaId(producto.getMarcaId());
         if (producto.getDescripcion() != null) existing.setDescripcion(producto.getDescripcion());
         if (producto.getImagenUrl() != null) existing.setImagenUrl(producto.getImagenUrl());
         if (producto.getPrecioUnitario() != null) existing.setPrecioUnitario(producto.getPrecioUnitario());
-        if (producto.getTallas() != null) existing.setTallas(producto.getTallas());
         if (producto.getImagen() != null) existing.setImagen(producto.getImagen());
+
+        // Las tallas se gestionan automáticamente por la tabla producto_talla
+
 
         Producto saved = productoRepository.save(existing);
         return ResponseEntity.ok(saved);
@@ -108,7 +114,7 @@ public class ProductoController {
         if (producto.getDescripcion() != null) existing.setDescripcion(producto.getDescripcion());
         if (producto.getImagenUrl() != null) existing.setImagenUrl(producto.getImagenUrl());
         if (producto.getPrecioUnitario() != null) existing.setPrecioUnitario(producto.getPrecioUnitario());
-        if (producto.getTallas() != null) existing.setTallas(producto.getTallas());
+        // No actualizar tallas desde este endpoint (se gestionan via Inventario)
 
         if (imagen != null && !imagen.isEmpty()) {
             try {
@@ -123,6 +129,7 @@ public class ProductoController {
         }
 
         Producto saved = productoRepository.save(existing);
+        log.debug("Tallas actuales del producto: {}", saved.getTallas() != null ? saved.getTallas().size() : 0);
         return ResponseEntity.ok(saved);
     }
 

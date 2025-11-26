@@ -13,5 +13,5 @@ public class ReporteVentasDTO {
     private int numeroVentasRealizadas;
     private int numeroVentasCanceladas;
     private int ingresosTotal;
-    private List<DetalleVentaReporteDTO> detallesVentas;
+    private List<DetalleVentaDTO> detallesVentas;
 }

@@ -30,4 +30,8 @@ public interface InventarioRepository extends JpaRepository<Inventario, Long> {
 
     // Buscar por modelo y talla (usado en la precarga para evitar duplicados)
     Optional<Inventario> findByModeloIdAndTalla(Long modeloId, String talla);
+
+    // Verificar existencia excluyendo un ID específico (para actualizaciones)
+    boolean existsByProductoIdAndTallaAndIdNot(Long productoId, String talla, Long id);
+    
 }
