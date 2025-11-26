@@ -127,8 +127,9 @@ public class PersonaService {
         persona.setCalle(personaDTO.getCalle());
         persona.setNumeroPuerta(personaDTO.getNumeroPuerta());
         persona.setUsername(personaDTO.getUsername());
-        // Hashear la contraseña con BCrypt (si no se proporciona, dejar passHash vacío)
+        // Hasheo de la contraseña al crear la persona
         if (personaDTO.getPassword() != null && !personaDTO.getPassword().isEmpty()) {
+            // Se guarda la contraseña en formato seguro usando BCrypt
             persona.setPassHash(passwordEncoder.encode(personaDTO.getPassword()));
         } else {
             persona.setPassHash("");
@@ -175,6 +176,7 @@ public class PersonaService {
         if (persona != null) {
             boolean matches = false;
             try {
+                // Verifica la contraseña usando BCrypt
                 matches = passwordEncoder.matches(password, persona.getPassHash());
             } catch (Exception ignored) {
             }
@@ -193,10 +195,11 @@ public class PersonaService {
             return false;
         }
         // Verificar contraseña actual
+        // Verifica la contraseña actual usando BCrypt
         if (!passwordEncoder.matches(passwordActual, persona.getPassHash())) {
             throw new IllegalArgumentException("Contraseña actual incorrecta");
         }
-        // Establecer nueva contraseña hasheada
+        // Hashea y guarda la nueva contraseña
         persona.setPassHash(passwordEncoder.encode(passwordNueva));
         personaRepository.save(persona);
         return true;
@@ -208,6 +211,7 @@ public class PersonaService {
         if (persona == null) {
             return false;
         }
+        // Hashea y guarda la nueva contraseña (reset por admin)
         persona.setPassHash(passwordEncoder.encode(passwordNueva));
         personaRepository.save(persona);
         return true;
