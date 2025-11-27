@@ -16,6 +16,7 @@ import java.util.List;
 
 @RestController
 @Tag(name = "Movimientos de Inventario", description = "Consultas e historial de entradas y salidas de stock")
+@RequestMapping("/inventario/movimientos")
 public class MovimientoInventarioController {
 
     @Autowired

@@ -159,9 +159,9 @@ public class BoletaControllerTest {
 
         // Act & Assert
         mockMvc.perform(put("/ventas/boletas/{id}/estado", 1L)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.estado", is("completada")));
+        .param("estado", "completada")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.estado", is("completada")));
     }
 }

@@ -233,7 +233,7 @@ public class EntregaServiceTest {
 
         EntregaDTO resultado = entregaService.completarEntrega(1L, "Entrega exitosa");
 
-        assertThat(resultado.getEstadoEntrega()).isEqualTo("completada");
+        assertThat(resultado.getEstadoEntrega()).isEqualTo("entregada");
         assertThat(resultado.getObservacion()).isEqualTo("Entrega exitosa");
         assertThat(resultado.getFechaEntrega()).isNotNull();
         verify(entregaRepository).save(any(Entrega.class));
@@ -250,7 +250,7 @@ public class EntregaServiceTest {
 
         EntregaDTO resultado = entregaService.completarEntrega(1L, null);
 
-        assertThat(resultado.getEstadoEntrega()).isEqualTo("completada");
+        assertThat(resultado.getEstadoEntrega()).isEqualTo("entregada");
         assertThat(resultado.getObservacion()).isNull();
         assertThat(resultado.getFechaEntrega()).isNotNull();
     }
