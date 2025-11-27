@@ -121,7 +121,6 @@ public class EntregaService {
         entrega.setIdTransportista(idTransportista);
         
         // MODIFICACIÓN: Mantenemos el estado en "pendiente" explícitamente
-        // Eliminamos el cambio a "asignada" o "en_camino"
         entrega.setEstadoEntrega("pendiente"); 
         
         entrega.setFechaAsignacion(LocalDateTime.now());
@@ -131,15 +130,45 @@ public class EntregaService {
 
     // Marca la entrega como completada, guarda observación y fecha de entrega.
     public EntregaDTO completarEntrega(Long idEntrega, String observacion) {
-        Entrega entrega = entregaRepository.findById(idEntrega)
-                .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
+    Entrega entrega = entregaRepository.findById(idEntrega)
+            .orElseThrow(() -> new RuntimeException("Entrega no encontrada"));
 
-        entrega.setEstadoEntrega("completada"); // O "entregada", asegúrate que coincida con tu filtro en Android
-        entrega.setObservacion(observacion);
-        entrega.setFechaEntrega(LocalDateTime.now());
+    // 1. Actualizar estado de la entrega
+    entrega.setEstadoEntrega("entregada"); // Cambiado de "completada" a "entregada" para consistencia
+    entrega.setObservacion(observacion);
+    entrega.setFechaEntrega(LocalDateTime.now());
+    
+    Entrega entregaActualizada = entregaRepository.save(entrega);
 
-        return toDTO(entregaRepository.save(entrega));
+    // 2. NUEVO: Actualizar el estado de la boleta a "confirmada" para que aparezca en reportes
+    try {
+        Long idBoleta = entrega.getIdBoleta();
+        if (idBoleta != null) {
+            log.info("Actualizando boleta #{} a estado 'confirmada' tras completar entrega", idBoleta);
+            
+            // Llamar al endpoint de ventas para actualizar el estado de la boleta
+            ventasWebClient.put()
+                    .uri("/ventas/boletas/" + idBoleta + "/estado?estado=confirmada")
+                    .retrieve()
+                    .toBodilessEntity()
+                    .block(Duration.ofSeconds(3));
+            
+            log.info("Boleta #{} actualizada exitosamente a 'confirmada'", idBoleta);
+        } else {
+            log.warn("La entrega #{} no tiene ID de boleta asociado", idEntrega);
+        }
+    } catch (WebClientResponseException ex) {
+        log.error("Error al actualizar estado de boleta (HTTP {}): {}", 
+                  ex.getStatusCode(), ex.getMessage());
+        // No fallar la entrega si falla la actualización de la boleta
+        // El transportista ya cumplió su trabajo
+    } catch (Exception e) {
+        log.error("Error al actualizar estado de boleta para entrega #{}: {}", 
+                  idEntrega, e.getMessage());
+        // Continuar sin fallar la operación principal
     }
+    return toDTO(entregaActualizada);
+}
 
     // Cambia el estado de una entrega al nuevo valor indicado.
     public EntregaDTO cambiarEstado(Long idEntrega, String nuevoEstado) {

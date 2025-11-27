@@ -22,7 +22,7 @@ public interface BoletaRepository extends JpaRepository<Boleta, Long> {
     List<Boleta> findByClienteIdAndEstado(Long clienteId, String estado);
     
     // Buscar boletas por rango de fechas
-    List<Boleta> findByFechaVentaBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin);
+    //List<Boleta> findByFechaVentaBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin);
     
     // Buscar boletas por cliente y rango de fechas
     List<Boleta> findByClienteIdAndFechaVentaBetween(Long clienteId, LocalDateTime fechaInicio, LocalDateTime fechaFin);
@@ -32,7 +32,13 @@ public interface BoletaRepository extends JpaRepository<Boleta, Long> {
     
     // Buscar boletas por cliente ordenadas por fecha descendente
     List<Boleta> findByClienteIdOrderByFechaVentaDesc(Long clienteId);
-    
+
+    // Buscar boletas por rango de fechas
+    @Query("SELECT b FROM Boleta b WHERE b.fechaVenta >= :inicio AND b.fechaVenta <= :fin ORDER BY b.fechaVenta DESC")
+    List<Boleta> findByFechaVentaBetween(
+        @Param("inicio") LocalDateTime inicio, 
+        @Param("fin") LocalDateTime fin
+    );
     // Contar boletas por estado
     long countByEstado(String estado);
     

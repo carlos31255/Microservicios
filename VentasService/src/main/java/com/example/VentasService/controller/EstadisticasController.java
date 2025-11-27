@@ -7,13 +7,15 @@ import com.example.VentasService.model.FiltroReporteRequest;
 import com.example.VentasService.repository.BoletaRepository;
 import com.example.VentasService.repository.DetalleBoletaRepository;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.HashMap;
@@ -31,6 +33,9 @@ public class EstadisticasController {
 
     @Autowired
     private DetalleBoletaRepository detalleBoletaRepository;
+
+    private static final ZoneId ZONA_CHILE = ZoneId.of("America/Santiago");
+
 
     @GetMapping
     @Operation(summary = "Dashboard completo de ventas", description = "Retorna estadísticas generales del sistema de ventas")
@@ -57,7 +62,19 @@ public class EstadisticasController {
     }
 
     @PostMapping("/generar")
-    @Operation(summary = "Generar reporte de ventas", description = "Reporte con filtro de año/mes")
+    @Operation(
+        summary = "Generar reporte de ventas", 
+        description = "Reporte con filtro de año/mes",
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Filtros para el reporte (año requerido, mes opcional)",
+            content = @Content(
+                mediaType = "application/json",
+                examples = @ExampleObject(
+                    value = "{\"anio\": 2024, \"mes\": 11}"
+                )
+            )
+        )
+    )
     public ResponseEntity<ReporteVentasDTO> generarReporte(@RequestBody FiltroReporteRequest filtro) {
 
         if (filtro.getAnio() == null) {
@@ -70,22 +87,21 @@ public class EstadisticasController {
         // Lógica para definir el rango de fechas
         if (filtro.getMes() != null) {
             // CASO 1: Reporte Mensual (Ej: Noviembre 2024)
-            // Calculamos el primer día del mes a las 00:00:00
             YearMonth yearMonth = YearMonth.of(filtro.getAnio(), filtro.getMes());
+            
+            // Inicio: primer día del mes a las 00:00:00.000000
             inicio = yearMonth.atDay(1).atStartOfDay();
-
-            // Calculamos el último día del mes a las 23:59:59.999
-            fin = yearMonth.atEndOfMonth().atTime(LocalTime.MAX);
+            
+            // Fin: último día del mes a las 23:59:59.999999
+            fin = yearMonth.atEndOfMonth().atTime(23, 59, 59, 999999999);
+            
         } else {
-            // CASO 2: Reporte Anual (Todo el año 2024)
-            // Desde 1 de Enero 00:00
-            inicio = LocalDateTime.of(filtro.getAnio(), 1, 1, 0, 0);
-
-            // Hasta 31 de Diciembre 23:59
-            fin = LocalDateTime.of(filtro.getAnio(), 12, 31, 23, 59, 59);
+            // CASO 2: Reporte Anual (Todo el año)
+            inicio = LocalDateTime.of(filtro.getAnio(), 1, 1, 0, 0, 0, 0);
+            fin = LocalDateTime.of(filtro.getAnio(), 12, 31, 23, 59, 59, 999999999);
         }
 
-        // 1. Buscar usando BETWEEN (Sin @Query)
+        // 1. Buscar usando BETWEEN con la query personalizada
         List<Boleta> boletas = boletaRepository.findByFechaVentaBetween(inicio, fin);
 
         // 2. Filtrar realizadas (completada/confirmada)
@@ -104,20 +120,14 @@ public class EstadisticasController {
                 .mapToInt(b -> b.getTotal() != null ? b.getTotal() : 0)
                 .sum();
 
-        // 5. Mapear a DetalleVentaDTO
+        // 5. Mapear a DetalleVentaDTO usando ZONA_CHILE para conversión
         List<DetalleVentaDTO> detalles = ventasRealizadas.stream()
                 .map(b -> new DetalleVentaDTO(
-                        // ID a String
                         String.valueOf(b.getId()),
-
-                        // LocalDateTime (fechaVenta) a Long (Milisegundos)
                         b.getFechaVenta() != null
-                                ? b.getFechaVenta().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                                ? b.getFechaVenta().atZone(ZONA_CHILE).toInstant().toEpochMilli()
                                 : 0L,
-
-                        // Como solo tenemos ID, devolvemos el ID formateado
                         "Cliente #" + b.getClienteId(),
-
                         b.getTotal(),
                         b.getEstado()))
                 .collect(Collectors.toList());
@@ -131,10 +141,13 @@ public class EstadisticasController {
 
         return ResponseEntity.ok(reporte);
     }
+    
 
     @GetMapping("/cliente/{id}")
     @Operation(summary = "Estadísticas por cliente", description = "Retorna estadísticas de compras de un cliente específico")
-    public ResponseEntity<Map<String, Object>> obtenerEstadisticasCliente(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> obtenerEstadisticasCliente(
+            @Parameter(description = "ID del cliente", example = "5") 
+            @PathVariable Long id) {
         Map<String, Object> stats = new HashMap<>();
 
         long totalCompras = boletaRepository.countByClienteId(id);

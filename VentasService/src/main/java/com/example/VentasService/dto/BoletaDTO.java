@@ -23,4 +23,5 @@ public class BoletaDTO {
     
     // Lista de detalles (productos)
     private List<DetalleBoletaDTO> detalles;
+    
 }
